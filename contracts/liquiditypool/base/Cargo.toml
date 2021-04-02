@@ -1,5 +1,5 @@
 [package]
-name = "poolfactory"
+name = "base"
 version = "0.1.0"
 authors = ["FleetTime <83365885@qq.com>"]
 edition = "2018"
@@ -11,19 +11,23 @@ ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", de
 ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 
-math = { version = "0.1.0", path = "math", default-features = false, features = ["ink-as-dependency"] }
-base = { version = "0.1.0", path = "base", default-features = false, features = ["ink-as-dependency"] }
+math = { version = "0.1.0", path = "../math", default-features = false, features = ["ink-as-dependency"] }
 
-scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
 # Should be removed once bitvecto-rs/bitvec#105 is resolved
 funty = "=1.1.0"
 
 [lib]
-name = "poolfactory"
+name = "base"
 path = "lib.rs"
-crate-type = ["cdylib"]
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
+]
 
 [features]
 default = ["std"]
@@ -36,15 +40,7 @@ std = [
     "ink_lang/std",
     "scale/std",
     "scale-info",
-    "scale-info/std",
 
-    "math/std",
-    "base/std",
+    "math/std"
 ]
 ink-as-dependency = []
-
-[workspace]
-members = [
-    "math",
-    "base",
-]
