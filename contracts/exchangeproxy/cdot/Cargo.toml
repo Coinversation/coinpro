@@ -1,5 +1,5 @@
 [package]
-name = "exchangeproxy"
+name = "cdot"
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2018"
@@ -11,45 +11,34 @@ ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", de
 ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_prelude = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
-cdot = { path = "cdot", default-features = false, features = ["ink-as-dependency"] }
-pool = { path = "pool", default-features = false, features = ["ink-as-dependency"] }
 
 scale = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
-funty = "=1.1"
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+
+# Should be removed once bitvecto-rs/bitvec#105 is resolved
+funty = "=1.1.0"
 
 [lib]
-name = "exchangeproxy"
+name = "cdot"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
 	"cdylib",
+    # Used for ABI generation.
+    "rlib",
 ]
 
 [features]
 default = ["std"]
 std = [
+    "ink_primitives/std",
+    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_storage/std",
-    "ink_primitives/std",
-    "ink_prelude/std",
+    "ink_lang/std",
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "cdot/std",
-    "pool/std",
 ]
 ink-as-dependency = []
-[profile.release]
-overflow-checks = false
-panic = "unwind"
-
-[profile.dev]
-panic = "unwind"
-
-[workspace]
-members = [
-    "cdot",
-    "pool",
-]

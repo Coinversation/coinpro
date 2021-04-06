@@ -1,71 +1,324 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
 use ink_lang as ink;
-
 #[ink::contract]
 mod exchangeproxy {
+    use cdot::Erc20;
+    use pool::PoolInterface;
+    use ink_env::call::FromAccountId;
+    use ink_lang::ToAccountId;
+    use ink_prelude::vec::Vec;
+    use ink_storage::{
+        // collections::{HashMap as StorageHashMap, Vec as StorageVec},
+        traits::{PackedLayout, SpreadLayout},
+        Lazy,
+    };
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    pub struct Exchangeproxy {
+    pub struct ExchangeProxy {
         /// Stores a single `bool` value on the storage.
-        value: bool,
+        _mutex: bool,
+        cdot: Lazy<Erc20>,
     }
 
-    impl Exchangeproxy {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
-        #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
-        }
+    #[derive(
+    Debug, PartialEq, Eq, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout,
+    )]
+    #[cfg_attr(
+    feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    )]
+    pub struct Swap {
+        pool: AccountId,
+        token_in_param: u128,
+        // tokenInAmount / maxAmountIn / limitAmountIn
+        token_out_param: u128,
+        // mßinAmountOut / token_amount_out / limitAmountOut
+        max_price: u128,
+    }
 
+    #[ink(event)]
+    pub struct LOGCALL {
+        // #[ink(topic)]
+        // sig: [u8; 4],
+        #[ink(topic)]
+        caller: Option<AccountId>,
+        // data: [u8; 32],
+    }
+
+    impl ExchangeProxy {
         /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
         #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
+        pub fn new(weth_contract: AccountId) -> Self {
+            assert_ne!(weth_contract, Default::default());
+            let weth_token: Erc20 = FromAccountId::from_account_id(weth_contract);
+            Self {
+                _mutex: false,
+                cdot: Lazy::new(weth_token),
+            }
         }
-
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
+        pub fn default() -> Self { Self::new(Default::default()) }
         #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
+        pub fn batch_swap_exact_in(
+            &mut self,
+            swaps: Vec<Swap>,
+            token_in: AccountId,
+            token_out: AccountId,
+            total_amount_in: u128,
+            min_total_amount_out: u128,
+        ) -> u128 {
+            self._logs_();
+            self._locks_();
+            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
+            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            let mut total_amount_out: u128 = 0;
+            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
+            for x in swaps {
+                let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
+                    ti.approve(x.pool, u128::MAX);
+                }
+                let token_amount_out = pool.swap_exact_amount_in(
+                    token_in,
+                    x.token_in_param,
+                    token_out,
+                    x.token_out_param,
+                    x.max_price,
+                );
+                total_amount_out = self.add(token_amount_out, total_amount_out);
+            }
+            assert!(total_amount_out>=min_total_amount_out);
+            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok());
+            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok());
+            self._unlocks_();
+            total_amount_out
         }
 
+
+        #[ink(message)]
+        pub fn batch_swap_exact_out(
+            &mut self,
+            swaps: Vec<Swap>,
+            token_in: AccountId,
+            token_out: AccountId,
+            max_total_amount_in: u128,
+        ) -> u128 {
+            self._logs_();
+            self._locks_();
+            let mut total_amount_in: u128 = 0;
+            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
+            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
+            // let swap: Vec<_> = swaps.iter().copied().collect();
+            for x in swaps {
+                let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                if ti.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
+                    ti.approve(x.pool, u128::MAX);
+                }
+                let token_amount_in = pool.swap_exact_amount_in(
+                    token_in,
+                    x.token_in_param,
+                    token_out,
+                    x.token_out_param,
+                    x.max_price,
+                );
+                total_amount_in = self.add(token_amount_in, total_amount_in);
+            }
+            assert!(total_amount_in<=max_total_amount_in);
+            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok());
+            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok());
+            self._unlocks_();
+            total_amount_in
+        }
+
+        #[ink(message)]
+        pub fn batch_eth_in_swap_exact_in(
+            &mut self,
+            swaps: Vec<Swap>,
+            token_out: AccountId,
+            min_total_amount_out: u128,
+        ) -> u128 {
+            self._logs_();
+            self._locks_();
+            let mut total_amount_out: u128 = 0;
+            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            self.cdot.deposit();
+            // self.cdot.deposit.value(self.env().balance())();
+            // let exchangeproxy: Vec<_> = swaps.iter().copied().collect();
+            // for x in exchangeproxy.clone().into_iter() {
+            for x in swaps {
+                let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                if self.cdot.allowance(self.env().account_id(), x.pool) < self.env().balance() {
+                    self.cdot.approve(x.pool, u128::MAX);
+                }
+                let token_amount_out = pool.swap_exact_amount_in(
+                    self.cdot.to_account_id(),
+                    x.token_in_param,
+                    token_out,
+                    x.token_out_param,
+                    x.max_price,
+                );
+                total_amount_out = self.add(token_amount_out, total_amount_out);
+            }
+            assert!(total_amount_out >= min_total_amount_out);
+            assert!(to.transfer(self.env().caller(), to.balance_of(self.env().account_id())).is_ok());
+            let weth_balance = self.cdot.balance_of(self.env().account_id());
+            if weth_balance > 0 {
+                self.cdot.withdraw(weth_balance);
+                // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+                // require(xfer, "ERR_ETH_FAILED");
+            }
+            self._unlocks_();
+            total_amount_out
+        }
+
+        #[ink(message)]
+        pub fn batch_eth_out_swap_exact_in(
+            &mut self,
+            swaps: Vec<Swap>,
+            token_in: AccountId,
+            total_amount_in: u128,
+            min_total_amount_out: u128,
+        ) -> u128 {
+            self._logs_();
+            self._locks_();
+            let mut total_amount_out: u128 = 0;
+            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
+            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
+            // let swap: Vec<_> = swaps.iter().copied().collect();
+            // for x in swap.clone().into_iter() {
+            for x in swaps {
+                let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
+                    ti.approve(x.pool, u128::MAX);
+                }
+                let token_amount_out = pool.swap_exact_amount_in(
+                    token_in,
+                    x.token_in_param,
+                    self.cdot.to_account_id(),
+                    x.token_out_param,
+                    x.max_price,
+                );
+                total_amount_out = self.add(token_amount_out, total_amount_out);
+            }
+            assert!(total_amount_out >= min_total_amount_out);
+            let weth_balance = self.cdot.balance_of(self.env().account_id());
+            self.cdot.withdraw(weth_balance);
+            // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            // require(xfer, "ERR_ETH_FAILED");
+            assert!(ti.transfer(self.env().caller(), ti.balance_of(self.env().account_id())).is_ok());
+            self._unlocks_();
+            total_amount_out
+        }
+        #[ink(message)]
+        pub fn batch_eth_in_swap_exact_out(
+            &mut self,
+            swaps: Vec<Swap>,
+            token_out: AccountId,
+        ) -> u128 {
+            self._logs_();
+            self._locks_();
+            let mut total_amount_in: u128 = 0;
+            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            self.cdot.deposit();
+            // self.cdot.deposit.value(self.env().balance());
+            // let swap: Vec<_> = swaps.iter().copied().collect();
+            // for x in swap.clone().into_iter() {
+            for x in swaps {
+                let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                if to.allowance(self.env().account_id(), x.pool) < self.env().balance() {
+                    to.approve(x.pool, u128::MAX);
+                }
+                let token_amount_in = pool.swap_exact_amount_out(
+                    self.cdot.to_account_id(),
+                    x.token_in_param,
+                    token_out,
+                    x.token_out_param,
+                    x.max_price,
+                );
+                total_amount_in = self.add(token_amount_in, total_amount_in);
+                assert!(to.transfer(self.env().caller(), to.balance_of(self.env().account_id())).is_ok());
+                let weth_balance = self.cdot.balance_of(self.env().account_id());
+                if weth_balance > 0 {
+                    self.cdot.withdraw(weth_balance);
+                    // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+                    // assert_eq!(xfer,false);
+                }
+            }
+            self._unlocks_();
+            total_amount_in
+        }
+
+        #[ink(message)]
+        pub fn batch_eth_out_swap_exact_out(
+            &mut self,
+            swaps: Vec<Swap>,
+            token_in: AccountId,
+            max_total_amount_in: u128,
+        ) -> u128 {
+            self._logs_();
+            self._locks_();
+            let mut total_amount_in: u128 = 0;
+            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
+            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
+            // let swap: Vec<_> = swaps.iter().copied().collect();
+            // for x in swap.clone().into_iter() {
+            for x in swaps {
+                let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                if ti.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
+                    ti.approve(x.pool, u128::MAX);
+                }
+                let token_amount_in = pool.swap_exact_amount_out(
+                    token_in,
+                    x.token_in_param,
+                    self.cdot.to_account_id(),
+                    x.token_out_param,
+                    x.max_price,
+                );
+                total_amount_in = self.add(token_amount_in, total_amount_in);
+            }
+            assert!(max_total_amount_in <= max_total_amount_in);
+            assert!(ti.transfer(self.env().caller(), ti.balance_of(self.env().account_id())).is_ok());
+            let weth_balance = self.cdot.balance_of(self.env().account_id());
+            self.cdot.withdraw(weth_balance);
+            // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            // assert!(xfer);
+            self._unlocks_();
+            total_amount_in
+        }
+
+
+        //............................................
         /// Simply returns the current value of our `bool`.
         #[ink(message)]
         pub fn get(&self) -> bool {
-            self.value
-        }
-    }
-
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
-    #[cfg(test)]
-    mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
-
-        /// We test if the default constructor does its job.
-        #[test]
-        fn default_works() {
-            let exchangeproxy = Exchangeproxy::default();
-            assert_eq!(exchangeproxy.get(), false);
+            self._mutex
         }
 
-        /// We test a simple use case of our contract.
-        #[test]
-        fn it_works() {
-            let mut exchangeproxy = Exchangeproxy::new(false);
-            assert_eq!(exchangeproxy.get(), false);
-            exchangeproxy.flip();
-            assert_eq!(exchangeproxy.get(), true);
+        fn add(&self, a: u128, b: u128) -> u128 {
+            let c = a + b;
+            assert!(c >= a);
+            c
+        }
+
+        fn _logs_(&mut self) {
+            // emit LOG_CALL(msg.sig, msg.sender, msg.data);
+            let sender = self.env().caller();
+            self.env().emit_event(LOGCALL {
+                // sig: Default::default(),
+                caller: Some(sender),
+                // data: Default::default(),
+            });
+        }
+
+        fn _locks_(&mut self) {
+            assert!(self._mutex);
+            self._mutex = true;
+        }
+
+        fn _unlocks_(&mut self) {
+            self._mutex = false;
         }
     }
 }
