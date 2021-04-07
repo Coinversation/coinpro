@@ -4,6 +4,7 @@ use ink_lang as ink;
 mod exchangeproxy {
     use cdot::Erc20;
     use pool::PoolInterface;
+    use registry::RegistryInterface;
     use ink_env::call::FromAccountId;
     use ink_lang::ToAccountId;
     use ink_prelude::vec::Vec;
@@ -21,6 +22,23 @@ mod exchangeproxy {
         /// Stores a single `bool` value on the storage.
         _mutex: bool,
         cdot: Lazy<Erc20>,
+        registry : Lazy<RegistryInterface>,
+    }
+
+    #[derive(
+    Debug, PartialEq, Eq, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout,
+    )]
+    #[cfg_attr(
+    feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    )]
+    pub struct Pool {
+        pool:   AccountId,
+        token_balance_in:u128,
+        token_weight_in:u128,
+        token_balance_out:u128,
+        token_weight_out:u128,
+        swap_fee:u128,
+        effective_liquidity:u128,
     }
 
     #[derive(
@@ -50,12 +68,12 @@ mod exchangeproxy {
     impl ExchangeProxy {
         /// Constructor that initializes the `bool` value to `false`.
         #[ink(constructor)]
-        pub fn new(weth_contract: AccountId) -> Self {
-            assert_ne!(weth_contract, Default::default());
-            let weth_token: Erc20 = FromAccountId::from_account_id(weth_contract);
+        pub fn new(cdot_contract: AccountId) -> Self {
+            assert_ne!(cdot_contract, Default::default());
+            let cdot_token: Erc20 = FromAccountId::from_account_id(cdot_contract);
             Self {
                 _mutex: false,
-                cdot: Lazy::new(weth_token),
+                cdot: Lazy::new(cdot_token),
             }
         }
         pub fn default() -> Self { Self::new(Default::default()) }
@@ -131,9 +149,139 @@ mod exchangeproxy {
             self._unlocks_();
             total_amount_in
         }
+        #[ink(message)]
+        pub fn multihop_batch_swap_exact_in(
+            swap_sequences: Vec<Vec<Swap>>,
+            token_in: AccountId,
+            token_out: AccountId,
+            total_amount_in: u128,
+            min_total_amount_out:u128,
+        ) -> u128 {
+            transferFromAll(token_in, total_amount_in);
+            for x in swap_sequences {
+                let mut token_amount_out: u128 = 0;
+                for y in x {
+                    // Swap memory swap = swap_sequences[i][k];
+                    let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                    TokenInterface SwapTokenIn = TokenInterface(swap.tokenIn);
+                    if (k == 1) {
+                        // Makes sure that on the second swap the output of the first was used
+                        // so there is not intermediate token leftover
+                        swap.swapAmount = token_amount_out;
+                    }
+
+                    PoolInterface pool = PoolInterface(swap.pool);
+                    if (SwapTokenIn.allowance(address(this), swap.pool) > 0) {
+                        SwapTokenIn.approve(swap.pool, 0);
+                    }
+                    SwapTokenIn.approve(swap.pool, swap.swapAmount);
+                    (token_amount_out,) = pool.swapExactAmountIn(
+                        swap.tokenIn,
+                        swap.swapAmount,
+                        swap.tokenOut,
+                        swap.limitReturnAmount,
+                        swap.maxPrice
+                    );
+                }
+                // This takes the amountOut of the last swap
+                totalAmountOut = token_amount_out.add(totalAmountOut);
+            }
+
+            require(totalAmountOut >= min_total_amount_out, "ERR_LIMIT_OUT");
+
+            transferAll(token_out, totalAmountOut);
+            transferAll(token_in, getBalance(token_in));
+        }
 
         #[ink(message)]
-        pub fn batch_eth_in_swap_exact_in(
+        pub fn multihop_batch_swap_exact_out(
+            &mut self,
+            swap_sequences: Vec<Vec<Swap>>,
+            token_in: AccountId,
+            token_out: AccountId,
+            max_total_amount_in:u128,
+        ) -> u128{
+
+        transferFromAll(tokenIn, maxTotalAmountIn);
+
+        for (uint i = 0; i < swapSequences.length; i++) {
+        uint tokenAmountInFirstSwap;
+        // Specific code for a simple swap and a multihop (2 swaps in sequence)
+        if (swapSequences[i].length == 1) {
+        Swap memory swap = swapSequences[i][0];
+        TokenInterface SwapTokenIn = TokenInterface(swap.tokenIn);
+
+        PoolInterface pool = PoolInterface(swap.pool);
+        if (SwapTokenIn.allowance(address(this), swap.pool) > 0) {
+        SwapTokenIn.approve(swap.pool, 0);
+        }
+        SwapTokenIn.approve(swap.pool, swap.limitReturnAmount);
+
+        (tokenAmountInFirstSwap,) = pool.swapExactAmountOut(
+        swap.tokenIn,
+        swap.limitReturnAmount,
+        swap.tokenOut,
+        swap.swapAmount,
+        swap.maxPrice
+        );
+        } else {
+        // Consider we are swapping A -> B and B -> C. The goal is to buy a given amount
+        // of token C. But first we need to buy B with A so we can then buy C with B
+        // To get the exact amount of C we then first need to calculate how much B we'll need:
+        uint intermediateTokenAmount; // This would be token B as described above
+        Swap memory secondSwap = swapSequences[i][1];
+        PoolInterface poolSecondSwap = PoolInterface(secondSwap.pool);
+        intermediateTokenAmount = poolSecondSwap.calcInGivenOut(
+        poolSecondSwap.getBalance(secondSwap.tokenIn),
+        poolSecondSwap.getDenormalizedWeight(secondSwap.tokenIn),
+        poolSecondSwap.getBalance(secondSwap.tokenOut),
+        poolSecondSwap.getDenormalizedWeight(secondSwap.tokenOut),
+        secondSwap.swapAmount,
+        poolSecondSwap.getSwapFee()
+        );
+
+        //// Buy intermediateTokenAmount of token B with A in the first pool
+        Swap memory firstSwap = swapSequences[i][0];
+        TokenInterface FirstSwapTokenIn = TokenInterface(firstSwap.tokenIn);
+        PoolInterface poolFirstSwap = PoolInterface(firstSwap.pool);
+        if (FirstSwapTokenIn.allowance(address(this), firstSwap.pool) < uint(-1)) {
+        FirstSwapTokenIn.approve(firstSwap.pool, uint(-1));
+        }
+
+        (tokenAmountInFirstSwap,) = poolFirstSwap.swapExactAmountOut(
+        firstSwap.tokenIn,
+        firstSwap.limitReturnAmount,
+        firstSwap.tokenOut,
+        intermediateTokenAmount, // This is the amount of token B we need
+        firstSwap.maxPrice
+        );
+
+        //// Buy the final amount of token C desired
+        TokenInterface SecondSwapTokenIn = TokenInterface(secondSwap.tokenIn);
+        if (SecondSwapTokenIn.allowance(address(this), secondSwap.pool) < uint(-1)) {
+        SecondSwapTokenIn.approve(secondSwap.pool, uint(-1));
+        }
+
+        poolSecondSwap.swapExactAmountOut(
+        secondSwap.tokenIn,
+        secondSwap.limitReturnAmount,
+        secondSwap.tokenOut,
+        secondSwap.swapAmount,
+        secondSwap.maxPrice
+        );
+        }
+        totalAmountIn = tokenAmountInFirstSwap.add(totalAmountIn);
+        }
+
+        require(totalAmountIn <= maxTotalAmountIn, "ERR_LIMIT_IN");
+
+        transferAll(tokenOut, getBalance(tokenOut));
+        transferAll(tokenIn, getBalance(tokenIn));
+
+        }
+
+        #[ink(message)]
+        pub fn batch_dot_in_swap_exact_in(
             &mut self,
             swaps: Vec<Swap>,
             token_out: AccountId,
@@ -163,10 +311,10 @@ mod exchangeproxy {
             }
             assert!(total_amount_out >= min_total_amount_out);
             assert!(to.transfer(self.env().caller(), to.balance_of(self.env().account_id())).is_ok());
-            let weth_balance = self.cdot.balance_of(self.env().account_id());
-            if weth_balance > 0 {
-                self.cdot.withdraw(weth_balance);
-                // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            let cdot_balance = self.cdot.balance_of(self.env().account_id());
+            if cdot_balance > 0 {
+                self.cdot.withdraw(cdot_balance);
+                // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
                 // require(xfer, "ERR_ETH_FAILED");
             }
             self._unlocks_();
@@ -174,7 +322,7 @@ mod exchangeproxy {
         }
 
         #[ink(message)]
-        pub fn batch_eth_out_swap_exact_in(
+        pub fn batch_dot_out_swap_exact_in(
             &mut self,
             swaps: Vec<Swap>,
             token_in: AccountId,
@@ -203,16 +351,16 @@ mod exchangeproxy {
                 total_amount_out = self.add(token_amount_out, total_amount_out);
             }
             assert!(total_amount_out >= min_total_amount_out);
-            let weth_balance = self.cdot.balance_of(self.env().account_id());
-            self.cdot.withdraw(weth_balance);
-            // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            let cdot_balance = self.cdot.balance_of(self.env().account_id());
+            self.cdot.withdraw(cdot_balance);
+            // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
             // require(xfer, "ERR_ETH_FAILED");
             assert!(ti.transfer(self.env().caller(), ti.balance_of(self.env().account_id())).is_ok());
             self._unlocks_();
             total_amount_out
         }
         #[ink(message)]
-        pub fn batch_eth_in_swap_exact_out(
+        pub fn batch_dot_in_swap_exact_out(
             &mut self,
             swaps: Vec<Swap>,
             token_out: AccountId,
@@ -239,10 +387,10 @@ mod exchangeproxy {
                 );
                 total_amount_in = self.add(token_amount_in, total_amount_in);
                 assert!(to.transfer(self.env().caller(), to.balance_of(self.env().account_id())).is_ok());
-                let weth_balance = self.cdot.balance_of(self.env().account_id());
-                if weth_balance > 0 {
-                    self.cdot.withdraw(weth_balance);
-                    // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+                let cdot_balance = self.cdot.balance_of(self.env().account_id());
+                if cdot_balance > 0 {
+                    self.cdot.withdraw(cdot_balance);
+                    // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
                     // assert_eq!(xfer,false);
                 }
             }
@@ -251,7 +399,7 @@ mod exchangeproxy {
         }
 
         #[ink(message)]
-        pub fn batch_eth_out_swap_exact_out(
+        pub fn batch_dot_out_swap_exact_out(
             &mut self,
             swaps: Vec<Swap>,
             token_in: AccountId,
@@ -280,14 +428,20 @@ mod exchangeproxy {
             }
             assert!(max_total_amount_in <= max_total_amount_in);
             assert!(ti.transfer(self.env().caller(), ti.balance_of(self.env().account_id())).is_ok());
-            let weth_balance = self.cdot.balance_of(self.env().account_id());
-            self.cdot.withdraw(weth_balance);
-            // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            let cdot_balance = self.cdot.balance_of(self.env().account_id());
+            self.cdot.withdraw(cdot_balance);
+            // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
             // assert!(xfer);
             self._unlocks_();
             total_amount_in
         }
 
+        #[ink(message)]
+        pub fn set_registry(&mut self, _registry:AccountId) {
+            //TODO onlyOwner
+            let reg : RegistryInterface = FromAccountId::from_account_id(_registry);
+            self.registry = Lazy::new(reg);
+        }
 
         //............................................
         /// Simply returns the current value of our `bool`.
