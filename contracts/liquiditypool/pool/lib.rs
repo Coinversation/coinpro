@@ -169,14 +169,14 @@ mod pool {
             return (sender, this);
         }
 
-        pub fn _pull_underlying(&self, erc20: AccountId, from: AccountId, to: AccountId, amount: u128) {
-            let mut token: Token = FromAccountId::from_account_id(erc20);
+        pub fn _pull_underlying(&self, pat: AccountId, from: AccountId, to: AccountId, amount: u128) {
+            let mut token: Token = FromAccountId::from_account_id(pat);
             let fer = token.transfer_from(from, to, amount);
             assert!(fer);
         }
 
-        pub fn _push_underlying(&self, erc20: AccountId, to: AccountId, amount: u128) {
-            let mut token: Token = FromAccountId::from_account_id(erc20);
+        pub fn _push_underlying(&self, pat: AccountId, to: AccountId, amount: u128) {
+            let mut token: Token = FromAccountId::from_account_id(pat);
             let fer = token.transfer(to, amount);
             assert!(fer);
         }

@@ -1,13 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
-pub use self::erc20::Erc20;
+// PAT is the abbreviation for Polkadot Asset Token
+pub use self::pat::PAT;
 use ink_lang as ink;
 
 #[ink::contract]
-mod erc20 {
+mod pat {
     use ink_prelude::string::String;
 
-    /// The ERC-20 error types.
+    /// The PAT error types.
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
@@ -18,14 +18,14 @@ mod erc20 {
         InsufficientAllowance,
     }
 
-    /// The ERC-20 result type.
+    /// The PAT result type.
     pub type Result<T> = core::result::Result<T, Error>;
 
     #[ink(storage)]
-    pub struct Erc20 {}
+    pub struct PAT {}
 
-    impl Erc20 {
-        /// Creates a new ERC-20 contract with the specified initial supply.
+    impl PAT {
+        /// Creates a new PAT contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(
             _initial_supply: Balance,

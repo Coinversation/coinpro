@@ -10,7 +10,7 @@ async function run() {
   await api.isReady;
 
   const signer = createSigner(keyring.createFromUri(uri));
-  const contractFactory = await getContractFactory('erc20', signer);
+  const contractFactory = await getContractFactory('pat', signer);
 
   const balance = await api.query.system.account(signer.address);
 
