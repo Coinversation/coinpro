@@ -2,7 +2,7 @@
 use ink_lang as ink;
 #[ink::contract]
 mod exchangeproxy {
-    use cdot::Erc20;
+    use cdot::PAT;
     use pool::PoolInterface;
     use ink_env::call::FromAccountId;
     use ink_lang::ToAccountId;
@@ -20,7 +20,7 @@ mod exchangeproxy {
     pub struct ExchangeProxy {
         /// Stores a single `bool` value on the storage.
         _mutex: bool,
-        cdot: Lazy<Erc20>,
+        cdot: Lazy<PAT>,
     }
 
     #[derive(
@@ -50,12 +50,12 @@ mod exchangeproxy {
     impl ExchangeProxy {
         /// Constructor that initializes the `bool` value to `false`.
         #[ink(constructor)]
-        pub fn new(weth_contract: AccountId) -> Self {
-            assert_ne!(weth_contract, Default::default());
-            let weth_token: Erc20 = FromAccountId::from_account_id(weth_contract);
+        pub fn new(cdot_contract: AccountId) -> Self {
+            assert_ne!(cdot_contract, Default::default());
+            let cdot_token: PAT = FromAccountId::from_account_id(cdot_contract);
             Self {
                 _mutex: false,
-                cdot: Lazy::new(weth_token),
+                cdot: Lazy::new(cdot_token),
             }
         }
         pub fn default() -> Self { Self::new(Default::default()) }
@@ -70,8 +70,8 @@ mod exchangeproxy {
         ) -> u128 {
             self._logs_();
             self._locks_();
-            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
-            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            let mut ti: PAT = FromAccountId::from_account_id(token_in);
+            let mut to: PAT = FromAccountId::from_account_id(token_out);
             let mut total_amount_out: u128 = 0;
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
             for x in swaps {
@@ -107,8 +107,8 @@ mod exchangeproxy {
             self._logs_();
             self._locks_();
             let mut total_amount_in: u128 = 0;
-            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
-            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            let mut ti: PAT = FromAccountId::from_account_id(token_in);
+            let mut to: PAT = FromAccountId::from_account_id(token_out);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
             // let swap: Vec<_> = swaps.iter().copied().collect();
             for x in swaps {
@@ -133,7 +133,7 @@ mod exchangeproxy {
         }
 
         #[ink(message)]
-        pub fn batch_eth_in_swap_exact_in(
+        pub fn batch_dot_in_swap_exact_in(
             &mut self,
             swaps: Vec<Swap>,
             token_out: AccountId,
@@ -142,7 +142,7 @@ mod exchangeproxy {
             self._logs_();
             self._locks_();
             let mut total_amount_out: u128 = 0;
-            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            let mut to: PAT = FromAccountId::from_account_id(token_out);
             self.cdot.deposit();
             // self.cdot.deposit.value(self.env().balance())();
             // let exchangeproxy: Vec<_> = swaps.iter().copied().collect();
@@ -163,10 +163,10 @@ mod exchangeproxy {
             }
             assert!(total_amount_out >= min_total_amount_out);
             assert!(to.transfer(self.env().caller(), to.balance_of(self.env().account_id())).is_ok());
-            let weth_balance = self.cdot.balance_of(self.env().account_id());
-            if weth_balance > 0 {
-                self.cdot.withdraw(weth_balance);
-                // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            let cdot_balance = self.cdot.balance_of(self.env().account_id());
+            if cdot_balance > 0 {
+                self.cdot.withdraw(cdot_balance);
+                // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
                 // require(xfer, "ERR_ETH_FAILED");
             }
             self._unlocks_();
@@ -174,7 +174,7 @@ mod exchangeproxy {
         }
 
         #[ink(message)]
-        pub fn batch_eth_out_swap_exact_in(
+        pub fn batch_dot_out_swap_exact_in(
             &mut self,
             swaps: Vec<Swap>,
             token_in: AccountId,
@@ -184,7 +184,7 @@ mod exchangeproxy {
             self._logs_();
             self._locks_();
             let mut total_amount_out: u128 = 0;
-            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
+            let mut ti: PAT = FromAccountId::from_account_id(token_in);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
             // let swap: Vec<_> = swaps.iter().copied().collect();
             // for x in swap.clone().into_iter() {
@@ -203,16 +203,16 @@ mod exchangeproxy {
                 total_amount_out = self.add(token_amount_out, total_amount_out);
             }
             assert!(total_amount_out >= min_total_amount_out);
-            let weth_balance = self.cdot.balance_of(self.env().account_id());
-            self.cdot.withdraw(weth_balance);
-            // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            let cdot_balance = self.cdot.balance_of(self.env().account_id());
+            self.cdot.withdraw(cdot_balance);
+            // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
             // require(xfer, "ERR_ETH_FAILED");
             assert!(ti.transfer(self.env().caller(), ti.balance_of(self.env().account_id())).is_ok());
             self._unlocks_();
             total_amount_out
         }
         #[ink(message)]
-        pub fn batch_eth_in_swap_exact_out(
+        pub fn batch_dot_in_swap_exact_out(
             &mut self,
             swaps: Vec<Swap>,
             token_out: AccountId,
@@ -220,7 +220,7 @@ mod exchangeproxy {
             self._logs_();
             self._locks_();
             let mut total_amount_in: u128 = 0;
-            let mut to: Erc20 = FromAccountId::from_account_id(token_out);
+            let mut to: PAT = FromAccountId::from_account_id(token_out);
             self.cdot.deposit();
             // self.cdot.deposit.value(self.env().balance());
             // let swap: Vec<_> = swaps.iter().copied().collect();
@@ -239,10 +239,10 @@ mod exchangeproxy {
                 );
                 total_amount_in = self.add(token_amount_in, total_amount_in);
                 assert!(to.transfer(self.env().caller(), to.balance_of(self.env().account_id())).is_ok());
-                let weth_balance = self.cdot.balance_of(self.env().account_id());
-                if weth_balance > 0 {
-                    self.cdot.withdraw(weth_balance);
-                    // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+                let cdot_balance = self.cdot.balance_of(self.env().account_id());
+                if cdot_balance > 0 {
+                    self.cdot.withdraw(cdot_balance);
+                    // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
                     // assert_eq!(xfer,false);
                 }
             }
@@ -251,7 +251,7 @@ mod exchangeproxy {
         }
 
         #[ink(message)]
-        pub fn batch_eth_out_swap_exact_out(
+        pub fn batch_dot_out_swap_exact_out(
             &mut self,
             swaps: Vec<Swap>,
             token_in: AccountId,
@@ -260,7 +260,7 @@ mod exchangeproxy {
             self._logs_();
             self._locks_();
             let mut total_amount_in: u128 = 0;
-            let mut ti: Erc20 = FromAccountId::from_account_id(token_in);
+            let mut ti: PAT = FromAccountId::from_account_id(token_in);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
             // let swap: Vec<_> = swaps.iter().copied().collect();
             // for x in swap.clone().into_iter() {
@@ -280,9 +280,9 @@ mod exchangeproxy {
             }
             assert!(max_total_amount_in <= max_total_amount_in);
             assert!(ti.transfer(self.env().caller(), ti.balance_of(self.env().account_id())).is_ok());
-            let weth_balance = self.cdot.balance_of(self.env().account_id());
-            self.cdot.withdraw(weth_balance);
-            // (bool xfer,) = msg.sender.call.value(weth_balance)("");
+            let cdot_balance = self.cdot.balance_of(self.env().account_id());
+            self.cdot.withdraw(cdot_balance);
+            // (bool xfer,) = msg.sender.call.value(cdot_balance)("");
             // assert!(xfer);
             self._unlocks_();
             total_amount_in
