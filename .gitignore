@@ -1,4 +1,4 @@
-# Ignore build artifacts from the local tests sub-crate.
+# Ignore build artifacts_ from the local tests sub-crate.
 target
 
 # Ignore backup files creates by cargo fmt.
@@ -19,3 +19,5 @@ node_modules
 .idea
 
 .gitconfig
+
+artifacts
