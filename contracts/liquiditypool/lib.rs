@@ -17,7 +17,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod poolfactory {
+mod factory {
     use ink_storage::collections::HashMap as StorageHashMap;
     use ink_lang::ToAccountId;
     use ink_env::call::FromAccountId;
@@ -28,7 +28,7 @@ mod poolfactory {
     use pool::Pool;
 
     #[ink(storage)]
-    pub struct PoolFactory {
+    pub struct Factory {
         version: u32,
         math_address: AccountId,
         base_address: AccountId,
@@ -56,7 +56,7 @@ mod poolfactory {
         labs: Option<AccountId>,
     }
 
-    impl PoolFactory {
+    impl Factory {
         #[ink(constructor)]
         pub fn new(version: u32,
                    math_address: AccountId,
@@ -87,7 +87,7 @@ mod poolfactory {
         pub fn new_pool(&self) -> Pool {
             let salt = self.version.to_le_bytes();
             let token_params = Token::new(self.math_address)
-                .endowment(0)
+                .endowment(1000000000000)
                 .code_hash(self.token_code_hash)
                 .salt_bytes(salt)
                 .params();
@@ -98,7 +98,7 @@ mod poolfactory {
                 .expect("failed at instantiating the `Token` contract");
 
             let pool_params = Pool::new(self.math_address, self.base_address, token_address)
-                .endowment(0)
+                .endowment(1000000000000)
                 .code_hash(self.pool_code_hash)
                 .salt_bytes(salt)
                 .params();
