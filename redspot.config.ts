@@ -20,7 +20,7 @@ export default {
       },
       gasLimit: '400000000000',
       explorerUrl:
-        'https://polkadot.js.org/apps/#/explorer/query/?rpc=ws://8.210.86.149:9944/'
+        'https://polkadot.js.org/apps/#/explorer/query/?rpc=ws://127.0.0.1:9944/'
     },
     substrate: {
       endpoint: 'ws://127.0.0.1:9944',
