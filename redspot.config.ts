@@ -13,7 +13,7 @@ export default {
   },
   networks: {
     development: {
-      endpoint: 'ws://8.210.86.149:9944',
+      endpoint: 'ws://127.0.0.1:9944',
       types: {
         Address: 'MultiAddress',
         LookupSource: 'MultiAddress'
@@ -23,7 +23,7 @@ export default {
         'https://polkadot.js.org/apps/#/explorer/query/?rpc=ws://8.210.86.149:9944/'
     },
     substrate: {
-      endpoint: 'ws://8.210.86.149:9944',
+      endpoint: 'ws://127.0.0.1:9944',
       gasLimit: '400000000000',
       accounts: ['//Alice'],
       types: {}
