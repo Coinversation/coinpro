@@ -1,0 +1,590 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x50cc004fc7d3796ab5526796cc8fcbf503e1a3b03e85a6d27fb6bc97d25a78ea",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "base",
+    "version": "0.1.0",
+    "authors": [
+      "lipu <83365885@qq.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "math_address",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "events": [],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "token_balance_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_balance_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_spot_price"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0x7e09f757"
+      },
+      {
+        "args": [
+          {
+            "name": "token_balance_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_balance_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_out_given_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0x7a3ce1d8"
+      },
+      {
+        "args": [
+          {
+            "name": "token_balance_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_balance_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_in_given_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0x9183b1a6"
+      },
+      {
+        "args": [
+          {
+            "name": "token_balance_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "pool_supply",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "total_weight",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_pool_out_given_single_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0x15fdfc73"
+      },
+      {
+        "args": [
+          {
+            "name": "token_balance_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "pool_supply",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "total_weight",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "pool_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_single_in_given_pool_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0xb7c52e6b"
+      },
+      {
+        "args": [
+          {
+            "name": "token_balance_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "pool_supply",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "total_weight",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "pool_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_single_out_given_pool_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0x22749423"
+      },
+      {
+        "args": [
+          {
+            "name": "token_balance_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_weight_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "pool_supply",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "total_weight",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "token_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "name": "swap_fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "calc_pool_in_given_single_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 4
+        },
+        "selector": "0x355aba0b"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 1
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "math"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 2,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 3
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u128"
+      }
+    }
+  ]
+}
