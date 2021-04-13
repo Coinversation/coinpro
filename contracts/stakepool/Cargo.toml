@@ -1,11 +1,10 @@
 [package]
-name = "cusd"
+name = "stakepool"
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
 [dependencies]
-
 ink_primitives = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_metadata = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
@@ -20,7 +19,7 @@ scale-info = { version = "0.6.0", default-features = false, features = ["derive"
 funty = "=1.1.0"
 
 [lib]
-name = "cusd"
+name = "stakepool"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.
