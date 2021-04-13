@@ -21,6 +21,9 @@ mod factory {
     use ink_storage::collections::HashMap as StorageHashMap;
     use ink_lang::ToAccountId;
     use ink_env::call::FromAccountId;
+    use ink_env::debug_println;
+    use ink_env::hash::Blake2x256;
+    use scale::Encode;
 
     use math::Math;
     use base::Base;
@@ -29,7 +32,6 @@ mod factory {
 
     #[ink(storage)]
     pub struct Factory {
-        version: u32,
         math_address: AccountId,
         base_address: AccountId,
 
@@ -58,7 +60,7 @@ mod factory {
 
     impl Factory {
         #[ink(constructor)]
-        pub fn new(version: u32,
+        pub fn new(
                    math_address: AccountId,
                    base_address: AccountId,
                    token_code_hash: Hash,
@@ -66,7 +68,6 @@ mod factory {
             let rs = StorageHashMap::new();
             let lab = Self::env().caller();
             Self {
-                version,
                 math_address,
                 base_address,
 
@@ -84,39 +85,56 @@ mod factory {
         }
 
         #[ink(message)]
-        pub fn new_pool(&self) -> Pool {
-            let salt = self.version.to_le_bytes();
+        pub fn new_pool(&self) {
+            debug_println("enter ");
+            assert_ne!(self.token_code_hash, Hash::from([0; 32]));
+            assert_ne!(self.math_address, Default::default());
+            debug_println("token code hash and math address valid ");
+
+            let mut from = self.math_address.encode();
+            from.extend(self.base_address.encode());
+            let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(from.as_slice()));
+
+            assert_ne!(salt, Default::default());
+            debug_println("salt is valid ");
+
             let token_params = Token::new(self.math_address)
-                .endowment(1000000000000)
+                .endowment(10000000000000)
                 .code_hash(self.token_code_hash)
                 .salt_bytes(salt)
                 .params();
+
+            debug_println("build token contract params finish");
 
             let token_address = self
                 .env()
                 .instantiate_contract(&token_params)
                 .expect("failed at instantiating the `Token` contract");
 
-            let pool_params = Pool::new(self.math_address, self.base_address, token_address)
-                .endowment(1000000000000)
-                .code_hash(self.pool_code_hash)
-                .salt_bytes(salt)
-                .params();
+            debug_println("instantiate token succeed");
 
-            let pool_address = self
-                .env()
-                .instantiate_contract(&pool_params)
-                .expect("failed at instantiating the `pool` contract");
-
-            let sender = Self::env().caller();
-            self.env().emit_event(LogNewPool {
-                caller: Some(sender),
-                pool: Some(pool_address),
-            });
-
-            let mut p: Pool = FromAccountId::from_account_id(pool_address);
-            p.set_controller(sender);
-            return p;
+            // let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(salt.clone().as_ref()));
+            // let pool_params = Pool::new(self.math_address, self.base_address, token_address)
+            //     .endowment(10000000000000)
+            //     .code_hash(self.pool_code_hash)
+            //     .salt_bytes(salt)
+            //     .params();
+            //
+            // let pool_address = self
+            //     .env()
+            //     .instantiate_contract(&pool_params)
+            //     .expect("failed at instantiating the `pool` contract");
+            //
+            // debug_println("instantiate pool succeed");
+            //
+            // let sender = Self::env().caller();
+            // self.env().emit_event(LogNewPool {
+            //     caller: Some(sender),
+            //     pool: Some(pool_address),
+            // });
+            //
+            // let mut p: Pool = FromAccountId::from_account_id(pool_address);
+            // p.set_controller(sender);
         }
 
         #[ink(message)]
