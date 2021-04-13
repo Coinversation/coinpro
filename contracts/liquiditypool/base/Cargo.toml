@@ -1,5 +1,5 @@
 [package]
-name = "math"
+name = "base"
 version = "0.1.0"
 authors = ["lipu <83365885@qq.com>"]
 edition = "2018"
@@ -11,14 +11,16 @@ ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", de
 ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+math = { version = "0.1.0", path = "../math", default-features = false, features = ["ink-as-dependency"] }
 
-## Should be removed once bitvecto-rs/bitvec#105 is resolved
+scale = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
+
+# Should be removed once bitvecto-rs/bitvec#105 is resolved
 funty = "=1.1.0"
 
 [lib]
-name = "math"
+name = "base"
 path = "lib.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.
@@ -38,5 +40,7 @@ std = [
     "ink_lang/std",
     "scale/std",
     "scale-info",
+
+    "math/std"
 ]
 ink-as-dependency = []

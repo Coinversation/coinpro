@@ -1,7 +1,7 @@
 [package]
-name = "poolfactory"
+name = "factory"
 version = "0.1.0"
-authors = ["FleetTime <83365885@qq.com>"]
+authors = ["lipu <83365885@qq.com>"]
 edition = "2018"
 
 [dependencies]
@@ -12,6 +12,9 @@ ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink"
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 
 math = { version = "0.1.0", path = "math", default-features = false, features = ["ink-as-dependency"] }
+base = { version = "0.1.0", path = "base", default-features = false, features = ["ink-as-dependency"] }
+token = { version = "0.1.0", path = "token", default-features = false, features = ["ink-as-dependency"] }
+pool = { version = "0.1.0", path = "pool", default-features = false, features = ["ink-as-dependency"] }
 
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
@@ -20,7 +23,7 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 funty = "=1.1.0"
 
 [lib]
-name = "poolfactory"
+name = "factory"
 path = "lib.rs"
 crate-type = ["cdylib"]
 
@@ -38,10 +41,16 @@ std = [
     "scale-info/std",
 
     "math/std",
+    "base/std",
+    "token/std",
+    "pool/std",
 ]
 ink-as-dependency = []
 
 [workspace]
 members = [
     "math",
+    "base",
+    "token",
+    "pool",
 ]
