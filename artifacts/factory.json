@@ -1,7 +1,7 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xc54cde7cd92829ac9d5693804951bc699d41a02aa0cee6baddb6d98618770c83",
+    "hash": "0xa8babf2c211493a913daeadef8f77fdc40978e4615ed182c13a3aea318b081f7",
     "language": "ink! 3.0.0-rc3",
     "compiler": "rustc 1.52.0-nightly"
   },
@@ -154,7 +154,12 @@
           "new_pool"
         ],
         "payable": false,
-        "returnType": null,
+        "returnType": {
+          "displayName": [
+            "AccountId"
+          ],
+          "type": 1
+        },
         "selector": "0x2393fe3a"
       },
       {

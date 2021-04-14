@@ -13,6 +13,7 @@ async function run() {
     const signer = createSigner(keyring.createFromUri(uri));
 
     // deploy math
+    console.log('');
     console.log('Now deploy math contract');
     const mathContractFactory = await getContractFactory('math', signer);
     const balance1 = await api.query.system.account(signer.address);
@@ -23,8 +24,6 @@ async function run() {
         value:    '1000000000000',
         salt: 'Coinversation Math'
     });
-
-    console.log('');
     console.log('Deploy math contract successfully.');
     console.log(
         'The contract address: ',
@@ -36,6 +35,7 @@ async function run() {
     );
 
     // deploy base
+    console.log('');
     console.log('Now deploy base contract');
     const baseContractFactory = await getContractFactory('base', signer);
     const balance2 = await api.query.system.account(signer.address);
@@ -46,8 +46,6 @@ async function run() {
         value:    '1000000000000',
         salt: 'Coinversation Base'
     });
-
-    console.log('');
     console.log('Deploy base contract successfully.');
     console.log(
         'The contract address: ',
@@ -60,6 +58,7 @@ async function run() {
 
     // deploy factory
     // deploy token
+    console.log('');
     console.log('Now deploy token contract');
     const balance3 = await api.query.system.account(signer.address);
     console.log('Balance: ', balance3.toHuman());
@@ -70,8 +69,6 @@ async function run() {
         value:    '1000000000000',
         salt: 'Coinversation Token'
     });
-
-    console.log('');
     console.log('Deploy token contract successfully.');
     console.log(
         'The contract address: ',
@@ -83,6 +80,7 @@ async function run() {
     );
 
     // deploy pool
+    console.log('');
     console.log('Now deploy pool contract');
     const balance4 = await api.query.system.account(signer.address);
     console.log('Balance: ', balance4.toHuman());
@@ -93,7 +91,6 @@ async function run() {
         value:    '1000000000000',
         salt: 'Coinversation Pool'
     });
-    console.log('');
     console.log('Deploy pool contract successfully.');
     console.log(
         'The contract address: ',
@@ -104,6 +101,7 @@ async function run() {
         poolContract.abi.project.source.hash.toString()
     );
 
+    console.log('');
     console.log('Now deploy factory contract');
     const balance5 = await api.query.system.account(signer.address);
     console.log('Balance: ', balance5.toHuman());
@@ -112,11 +110,9 @@ async function run() {
     const contract = await contractFactory.deployed('new', mathContract.address,
         baseContract.address, tokenContract.abi.project.source.hash, poolContract.abi.project.source.hash, {
         gasLimit: '200000000000',
-        value:    '1000000000000',
+        value:    '10000000000000000',
         salt: 'Coinversation Factory'
     });
-
-    console.log('');
     console.log('Deploy factory contract successfully.');
     console.log(
         'The contract address: ',
@@ -126,11 +122,10 @@ async function run() {
         'The contract code hash: ',
         contract.abi.project.source.hash.toString()
     );
-    console.log('');
-
     const balance6 = await api.query.system.account(signer.address);
     console.log('Balance: ', balance6.toHuman());
 
+    console.log('');
     console.log('######################################')
     console.log('Now we execute the contract!')
     const txResponse = await contract.tx['newPool']();

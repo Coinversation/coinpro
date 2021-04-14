@@ -147,15 +147,15 @@ mod pool {
 
         fn _lock_(&mut self) {
             assert!(!self.mutex, "ERR_REENTRY");
-            self.mutex = true;
+            // self.mutex = true;
         }
 
-        fn _unlock_(&mut self) {
-            self.mutex = false;
-        }
+         fn _unlock_(&mut self) {
+            // self.mutex = false;
+         }
 
         fn _view_lock_(&self) {
-            assert!(!self.mutex, "ERR_REENTRY");
+            // assert!(!self.mutex, "ERR_REENTRY");
         }
 
         fn _get_sender(&self) -> AccountId {
@@ -290,8 +290,8 @@ mod pool {
 
             assert!(!self.finalized, "ERR_IS_FINALIZED");
             assert_eq!(self.controller, self._get_sender(), "ERR_NOT_CONTROLLER");
-            assert!(self.swap_fee >= MIN_FEE, "ERR_MIN_FEE");
-            assert!(self.swap_fee <= MAX_FEE, "ERR_MAX_FEE");
+            assert!(fee >= MIN_FEE, "ERR_MIN_FEE");
+            assert!(fee <= MAX_FEE, "ERR_MAX_FEE");
 
             self.swap_fee = fee;
         }

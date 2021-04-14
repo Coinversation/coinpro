@@ -85,7 +85,7 @@ mod factory {
         }
 
         #[ink(message)]
-        pub fn new_pool(&self) {
+        pub fn new_pool(&self) -> AccountId {
             debug_println("enter ");
             assert_ne!(self.token_code_hash, Hash::from([0; 32]));
             assert_ne!(self.math_address, Default::default());
@@ -99,7 +99,7 @@ mod factory {
             debug_println("salt is valid ");
 
             let token_params = Token::new(self.math_address)
-                .endowment(10000000000000)
+                .endowment(1000000000000)
                 .code_hash(self.token_code_hash)
                 .salt_bytes(salt)
                 .params();
@@ -111,38 +111,31 @@ mod factory {
                 .instantiate_contract(&token_params)
                 .expect("failed at instantiating the `Token` contract");
 
-
-            // let token = Token::new(self.math_address)
-            //     .endowment(10000000000000)
-            //     .code_hash(self.token_code_hash)
-            //     .salt_bytes(salt)
-            //     .instantiate()
-            //     .expect("failed at instantiating the `Token` contract");
-
             debug_println("instantiate token succeed");
 
-            // let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(salt.clone().as_ref()));
-            // let pool_params = Pool::new(self.math_address, self.base_address, token_address)
-            //     .endowment(10000000000000)
-            //     .code_hash(self.pool_code_hash)
-            //     .salt_bytes(salt)
-            //     .params();
-            //
-            // let pool_address = self
-            //     .env()
-            //     .instantiate_contract(&pool_params)
-            //     .expect("failed at instantiating the `pool` contract");
-            //
-            // debug_println("instantiate pool succeed");
-            //
-            // let sender = Self::env().caller();
-            // self.env().emit_event(LogNewPool {
-            //     caller: Some(sender),
-            //     pool: Some(pool_address),
-            // });
-            //
-            // let mut p: Pool = FromAccountId::from_account_id(pool_address);
-            // p.set_controller(sender);
+            let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(salt.clone().as_ref()));
+            let pool_params = Pool::new(self.math_address, self.base_address, token_address)
+                .endowment(1000000000000)
+                .code_hash(self.pool_code_hash)
+                .salt_bytes(salt)
+                .params();
+
+            let pool_address = self
+                .env()
+                .instantiate_contract(&pool_params)
+                .expect("failed at instantiating the `pool` contract");
+
+            debug_println("instantiate pool succeed");
+
+            let sender = Self::env().caller();
+            self.env().emit_event(LogNewPool {
+                caller: Some(sender),
+                pool: Some(pool_address),
+            });
+
+            let mut p: Pool = FromAccountId::from_account_id(pool_address);
+            p.set_controller(sender);
+            return pool_address
         }
 
         #[ink(message)]
