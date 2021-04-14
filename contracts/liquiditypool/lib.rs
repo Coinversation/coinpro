@@ -111,6 +111,14 @@ mod factory {
                 .instantiate_contract(&token_params)
                 .expect("failed at instantiating the `Token` contract");
 
+
+            // let token = Token::new(self.math_address)
+            //     .endowment(10000000000000)
+            //     .code_hash(self.token_code_hash)
+            //     .salt_bytes(salt)
+            //     .instantiate()
+            //     .expect("failed at instantiating the `Token` contract");
+
             debug_println("instantiate token succeed");
 
             // let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(salt.clone().as_ref()));

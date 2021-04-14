@@ -109,7 +109,7 @@ async function run() {
     console.log('Balance: ', balance5.toHuman());
 
     const contractFactory = await getContractFactory('factory', signer);
-    const contract = await contractFactory.deployed('new', 1, mathContract.address,
+    const contract = await contractFactory.deployed('new', mathContract.address,
         baseContract.address, tokenContract.abi.project.source.hash, poolContract.abi.project.source.hash, {
         gasLimit: '200000000000',
         value:    '1000000000000',
@@ -130,6 +130,12 @@ async function run() {
 
     const balance6 = await api.query.system.account(signer.address);
     console.log('Balance: ', balance6.toHuman());
+
+    console.log('######################################')
+    console.log('Now we execute the contract!')
+    const txResponse = await contract.tx['newPool']();
+
+    console.log('factory,newPool the result is:', txResponse)
 
     api.disconnect();
 }
