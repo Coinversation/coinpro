@@ -31,7 +31,7 @@ async function run() {
     );
     console.log(
         'The contract code hash: ',
-        mathContract.abi.project.source.hash.toString()
+        mathContract.abi.project.source.wasm.hash.toHex().toString()
     );
 
     // deploy base
@@ -53,7 +53,7 @@ async function run() {
     );
     console.log(
         'The contract code hash: ',
-        baseContract.abi.project.source.hash.toString()
+        baseContract.abi.project.source.wasm.hash.toHex().toString()
     );
 
     // deploy factory
@@ -76,7 +76,8 @@ async function run() {
     );
     console.log(
         'The contract code hash: ',
-        tokenContract.abi.project.source.hash.toString()
+        tokenContract.abi.project.source.wasm.hash.toHex().toString()
+
     );
 
     // deploy pool
@@ -98,7 +99,7 @@ async function run() {
     );
     console.log(
         'The contract code hash: ',
-        poolContract.abi.project.source.hash.toString()
+        poolContract.abi.project.source.wasm.hash.toHex().toString()
     );
 
     console.log('');
@@ -108,7 +109,7 @@ async function run() {
 
     const contractFactory = await getContractFactory('factory', signer);
     const contract = await contractFactory.deployed('new', mathContract.address,
-        baseContract.address, tokenContract.abi.project.source.hash, poolContract.abi.project.source.hash, {
+        baseContract.address, tokenContract.abi.project.source.wasm.hash.toHex(), poolContract.abi.project.source.wasm.hash.toHex(), {
         gasLimit: '200000000000',
         value:    '10000000000000000',
         salt: 'Coinversation Factory'
@@ -120,7 +121,7 @@ async function run() {
     );
     console.log(
         'The contract code hash: ',
-        contract.abi.project.source.hash.toString()
+        contract.abi.project.source.wasm.hash.toHex().toString()
     );
     const balance6 = await api.query.system.account(signer.address);
     console.log('Balance: ', balance6.toHuman());
@@ -128,7 +129,11 @@ async function run() {
     console.log('');
     console.log('######################################')
     console.log('Now we execute the contract!')
-    const txResponse = await contract.tx['newPool']();
+
+    const ts = parseInt((new Date().getTime()/1000).toString());
+    console.log('Now timestamp is :', ts.toString())
+
+    const txResponse = await contract.tx['newPool'](ts);
 
     console.log('factory,newPool the result is:', txResponse)
 

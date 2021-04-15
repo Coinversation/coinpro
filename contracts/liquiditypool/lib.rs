@@ -65,8 +65,8 @@ mod factory {
                    base_address: AccountId,
                    token_code_hash: Hash,
                    pool_code_hash: Hash) -> Self {
-            let rs = StorageHashMap::new();
-            let lab = Self::env().caller();
+            let is_pool = StorageHashMap::new();
+            let labs = Self::env().caller();
             Self {
                 math_address,
                 base_address,
@@ -74,8 +74,8 @@ mod factory {
                 token_code_hash,
                 pool_code_hash,
 
-                is_pool: rs,
-                labs: lab,
+                is_pool,
+                labs,
             }
         }
 
@@ -85,18 +85,12 @@ mod factory {
         }
 
         #[ink(message)]
-        pub fn new_pool(&self) -> AccountId {
+        pub fn new_pool(&mut self,  ts: u32) -> AccountId {
+            let salt = ts.to_le_bytes();
             debug_println("enter ");
             assert_ne!(self.token_code_hash, Hash::from([0; 32]));
             assert_ne!(self.math_address, Default::default());
             debug_println("token code hash and math address valid ");
-
-            let mut from = self.math_address.encode();
-            from.extend(self.base_address.encode());
-            let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(from.as_slice()));
-
-            assert_ne!(salt, Default::default());
-            debug_println("salt is valid ");
 
             let token_params = Token::new(self.math_address)
                 .endowment(1000000000000)
@@ -113,7 +107,6 @@ mod factory {
 
             debug_println("instantiate token succeed");
 
-            let salt = Hash::from(self.env().hash_bytes::<Blake2x256>(salt.clone().as_ref()));
             let pool_params = Pool::new(self.math_address, self.base_address, token_address)
                 .endowment(1000000000000)
                 .code_hash(self.pool_code_hash)
@@ -133,8 +126,13 @@ mod factory {
                 pool: Some(pool_address),
             });
 
+            // debug_println(pool_address);
+
             let mut p: Pool = FromAccountId::from_account_id(pool_address);
             p.set_controller(sender);
+            self.is_pool.insert(pool_address, true);
+
+            debug_println("new pool succeed");
             return pool_address
         }
 

@@ -1,7 +1,7 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xa8babf2c211493a913daeadef8f77fdc40978e4615ed182c13a3aea318b081f7",
+    "hash": "0x6c02534f4a5996db5f0d711d26f8512ece93a85d94ea5bb8938e1111e10bfdc9",
     "language": "ink! 3.0.0-rc3",
     "compiler": "rustc 1.52.0-nightly"
   },
@@ -147,9 +147,19 @@
         "selector": "0xd278a66b"
       },
       {
-        "args": [],
+        "args": [
+          {
+            "name": "ts",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 6
+            }
+          }
+        ],
         "docs": [],
-        "mutates": false,
+        "mutates": true,
         "name": [
           "new_pool"
         ],
