@@ -22,8 +22,7 @@ mod factory {
     use ink_lang::ToAccountId;
     use ink_env::call::FromAccountId;
     use ink_env::debug_println;
-    use ink_env::hash::Blake2x256;
-    use scale::Encode;
+    use ink_prelude::string::String;
 
     use math::Math;
     use base::Base;
@@ -81,7 +80,7 @@ mod factory {
 
         #[ink(message)]
         pub fn is_pool(&self, b: AccountId) -> bool {
-            return self.is_pool[&b];
+            return self.is_pool.get(&b).copied().unwrap_or(false);
         }
 
         #[ink(message)]
@@ -125,8 +124,6 @@ mod factory {
                 caller: Some(sender),
                 pool: Some(pool_address),
             });
-
-            // debug_println(pool_address);
 
             let mut p: Pool = FromAccountId::from_account_id(pool_address);
             p.set_controller(sender);
