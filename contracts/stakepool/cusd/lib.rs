@@ -4,7 +4,6 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod cusd {
-
     use ink_storage::{
         collections::{
             HashMap as StorageHashMap,
@@ -14,8 +13,14 @@ mod cusd {
         Lazy,
     };
 
+    use ink_prelude::{
+        vec::Vec,
+        format,
+    };
+
     use ink_env::call::FromAccountId;
     use core::convert::TryInto;
+    use ink_env::debug_println;
 
     #[derive(
     Debug, PartialEq, Eq, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout,
@@ -36,6 +41,7 @@ mod cusd {
         /// Stores a single `bool` value on the storage.
         value: bool,
         pub records: StorageHashMap<u32, Record>,
+        pub tokens: StorageVec<u32>,
     }
 
     impl Cusd {
@@ -45,6 +51,7 @@ mod cusd {
             Self {
                 value: init_value,
                 records: StorageHashMap::new(),
+                tokens: StorageVec::new(),
             }
         }
 
@@ -68,6 +75,15 @@ mod cusd {
 
             return Some(self.records.get(&token_id).unwrap().clone());
         }
+
+        #[ink(message)]
+        pub fn join_pool(&mut self) {
+            self.tokens.push(1);
+            self.tokens.push(2);
+            self.tokens.push(3);
+
+
+        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
@@ -82,23 +98,41 @@ mod cusd {
         #[ink::test]
         fn it_works() {
             let mut cusd = Cusd::new(false);
-            let r = Record {
-                bound: true,   // is token bound to pool
-                index: 1,   // private
-                de_norm: 1,  // denormalized weight
-                balance: 100,
-            };
-            cusd.records.insert(1, r);
+            // let r = Record {
+            //     bound: true,   // is token bound to pool
+            //     index: 1,   // private
+            //     de_norm: 1,  // denormalized weight
+            //     balance: 100,
+            // };
+            // cusd.records.insert(1, r);
+            //
+            // let cx = cusd.get_record(2);
+            // assert_eq!(cx.unwrap().bound, false);
+            //
+            // let cx1 = cusd.get_record(1);
+            // let r1 = cx1.unwrap();
+            // assert_eq!(r1.bound, true);
+            // assert_eq!(r1.index, 1);
+            // assert_eq!(r1.balance, 100);
+            // assert_eq!(r1.de_norm, 1);
 
-            let cx = cusd.get_record(2);
-            assert_eq!(cx.unwrap().bound, false);
+            cusd.join_pool();
 
-            let cx1 = cusd.get_record(1);
-            let r1 = cx1.unwrap();
-            assert_eq!(r1.bound, true);
-            assert_eq!(r1.index, 1);
-            assert_eq!(r1.balance, 100);
-            assert_eq!(r1.de_norm, 1);
+            let mut vec = Vec::new();
+            vec.push(2);
+            vec.push(3);
+            vec.push(4);
+
+            println!("Element at position");
+            for (pos, e) in cusd.tokens.iter().enumerate() {
+                let message = format!("Element at position {}: {:?}", pos, e);
+                debug_println(&message);
+
+                assert_eq!(vec[pos], pos + 1);
+
+
+                println!("Element at position {}: {:?}", pos, e);
+            }
         }
     }
 }

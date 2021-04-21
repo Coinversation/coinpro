@@ -1,7 +1,7 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xbaef82135084a68c232f92c38398cd47c1935759959385b77501b8e031a6f7b7",
+    "hash": "0x5fe626f84158e1a051ddeed5ab6bae4e4f4d8c6728d14c2f2483b00af6eca1f1",
     "language": "ink! 3.0.0-rc3",
     "compiler": "rustc 1.52.0-nightly"
   },
@@ -79,6 +79,17 @@
           "type": 9
         },
         "selector": "0x7e6cb4ce"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "join_pool"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xb4e4811a"
       }
     ]
   },
@@ -173,6 +184,40 @@
             }
           },
           "name": "records"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0300000001000000000000000000000000000000000000000000000000000000",
+                      "ty": 3
+                    }
+                  },
+                  "name": "len"
+                },
+                {
+                  "layout": {
+                    "array": {
+                      "cellsPerElem": 1,
+                      "layout": {
+                        "cell": {
+                          "key": "0x0300000002000000000000000000000000000000000000000000000000000000",
+                          "ty": 3
+                        }
+                      },
+                      "len": 4294967295,
+                      "offset": "0x0400000001000000000000000000000000000000000000000000000000000000"
+                    }
+                  },
+                  "name": "elems"
+                }
+              ]
+            }
+          },
+          "name": "tokens"
         }
       ]
     }

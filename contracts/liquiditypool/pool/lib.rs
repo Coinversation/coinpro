@@ -7,7 +7,6 @@ use ink_lang as ink;
 mod pool {
     use ink_prelude::{
         vec::Vec,
-        format,
     };
     use ink_storage::{
         collections::{
@@ -212,7 +211,8 @@ mod pool {
             }
         }
 
-        fn _get_record(&self, token_id: AccountId) -> Option<Record> {
+        #[ink(message)]
+        pub fn _get_record(&self, token_id: AccountId) -> Option<Record> {
             let r = self._build_empty_record();
             let exist = self.records.contains_key(&token_id);
             if !exist {
@@ -456,13 +456,7 @@ mod pool {
             self.records[&self.tokens[index.try_into().unwrap()]].index = index;
             self.tokens.pop();
 
-            let r = Record{
-                bound: false,
-                index: 0,
-                de_norm: 0,
-                balance: 0
-            };
-
+            let r = self._build_empty_record();
             self.records.insert(token, r);
 
             self._push_underlying(token, sender, self.math.bsub(token_balance, token_exit_fee));
@@ -475,8 +469,11 @@ mod pool {
         pub fn gulp(&mut self, token: AccountId) {
             self._logs_();
             self._lock_();
-            assert!(!self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
-            let balance = self.token.balance_of(token);
+            assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
+
+            let erc: PAT = FromAccountId::from_account_id(token);
+            let (_sender, this) = self._get_sender_and_this();
+            let balance = erc.balance_of(this);
             self._update_balance(token, balance);
             self._unlock_();
         }
@@ -526,10 +523,11 @@ mod pool {
                 let bal = self._get_record(t).unwrap().balance;
                 let token_amount_in = self.math.bmul(ratio, bal);
                 assert!(token_amount_in != 0, "ERR_MATH_APPROX");
-                // @todo fix max_amounts_in[i]
-                //assert!(token_amount_in <= max_amounts_in[i]);
+
+                let pos = i as usize;
+                assert!(token_amount_in <= max_amounts_in[pos]);
                 let mut balance = self._get_record(t).unwrap().balance;
-                balance = self.math.badd(balance, token_amount_in);
+                balance = self.math.badd(bal, token_amount_in);
                 self._update_balance(t, balance);
                 self.env().emit_event(LogJoin {
                     caller: Some(sender),
@@ -540,7 +538,6 @@ mod pool {
 
                 i += 1;
             }
-
 
             self._mint_pool_share(pool_amount_out);
             self._push_pool_share(sender, pool_amount_out);
@@ -572,8 +569,8 @@ mod pool {
                 let bal = self._get_record(t).unwrap().balance;
                 let token_amount_out = self.math.bmul(ratio, bal);
                 assert!(token_amount_out != 0, "ERR_MATH_APPROX");
-                // @todo fix min_amounts_out[i]
-                //assert!(token_amount_out >= min_amounts_out[i]);
+                let pos = i as usize;
+                assert!(token_amount_out >= min_amounts_out[pos]);
                 let mut balance = self._get_record(t).unwrap().balance;
                 balance = self.math.bsub(balance, token_amount_out);
                 self._update_balance(t, balance);
