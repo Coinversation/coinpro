@@ -740,22 +740,28 @@ mod pool {
                                           min_pool_amount_out: u128) -> u128 {
             self._logs_();
             self._lock_();
+            debug_println("enter join_swap_extern_amount_in");
+
             self.require_finalize_bound(token_in);
             assert!(token_amount_in <= self.math.bmul(self._get_record(token_in).unwrap().balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+
 
             // @todo fix storage
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
+
+            debug_println("ready to cal");
             let pool_amount_out = self.base.calc_pool_out_given_single_in(in_record_balance,
                                                                           in_record_de_norm,
                                                                           total_supply,
                                                                           self.total_weight,
                                                                           token_amount_in,
                                                                           self.swap_fee);
-
             assert!(pool_amount_out >= min_pool_amount_out, "ERR_LIMIT_OUT");
+            debug_println("cal finish");
+
             self._update_balance(token_in, self.math.badd(in_record_balance, token_amount_in));
             let (sender, this) = self._get_sender_and_this();
 

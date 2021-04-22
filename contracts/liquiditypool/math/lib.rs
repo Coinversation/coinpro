@@ -25,7 +25,7 @@ mod math {
     pub const MAX_BOUND_TOKENS: u128  = 8;
     pub const MIN_FEE: u128           = 1000000000000;
     pub const MAX_FEE: u128           = 100000000000000000;
-    pub const EXIT_FEE: u128          = 0;
+    pub const EXIT_FEE: u128          = 100000000000000;
 
     pub const MIN_WEIGHT: u128        = BONE;
     pub const MAX_WEIGHT: u128        = BONE * 50;
@@ -146,14 +146,14 @@ mod math {
         pub fn bpow_approx(&self, base : u128, exp : u128, precision : u128) -> u128 {
             let a= exp;
             let (x, xneg) = self.bsub_sign(base, BONE);
-            let term = BONE;
+            let mut term = BONE;
             let mut sum = term;
             let mut negative = false;
             let mut i: u128 = 1;
             while term >= precision {
                 let big_k = i * BONE;
                 let (c, cneg) = self.bsub_sign(a, self.bsub(big_k, BONE));
-                let mut term = self.bmul(term, self.bmul(c, x));
+                term = self.bmul(term, self.bmul(c, x));
                 term = self.bdiv(term, big_k);
                 if term == 0 {
                     break;
