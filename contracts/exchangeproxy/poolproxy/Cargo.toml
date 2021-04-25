@@ -1,5 +1,5 @@
 [package]
-name = "pool"
+name = "poolproxy"
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2018"
@@ -17,7 +17,7 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 funty = "=1.1"
 
 [lib]
-name = "pool"
+name = "poolproxy"
 path = "lib.rs"
 crate-type = [
     # Used for normal contract Wasm blobs.

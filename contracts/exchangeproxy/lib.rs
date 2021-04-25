@@ -3,7 +3,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod exchangeproxy {
     use cdot::PAT;
-    use pool::PoolInterface;
+    use poolproxy::PoolInterface;
     use ink_env::call::FromAccountId;
     use ink_lang::ToAccountId;
     use ink_prelude::vec::Vec;

@@ -12,7 +12,7 @@ ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink"
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_prelude = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 cdot = { path = "cdot", default-features = false, features = ["ink-as-dependency"] }
-pool = { path = "pool", default-features = false, features = ["ink-as-dependency"] }
+poolproxy = { path = "poolproxy", default-features = false, features = ["ink-as-dependency"] }
 
 scale = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
@@ -38,7 +38,7 @@ std = [
     "scale-info",
     "scale-info/std",
     "cdot/std",
-    "pool/std",
+    "poolproxy/std",
 ]
 ink-as-dependency = []
 [profile.release]
@@ -51,5 +51,5 @@ panic = "unwind"
 [workspace]
 members = [
     "cdot",
-    "pool",
+    "poolproxy",
 ]
