@@ -1,5 +1,5 @@
 [package]
-name = "poolfactory"
+name = "factory"
 version = "0.1.0"
 authors = ["lipu <83365885@qq.com>"]
 edition = "2018"
@@ -23,7 +23,7 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 funty = "=1.1.0"
 
 [lib]
-name = "poolfactory"
+name = "factory"
 path = "lib.rs"
 crate-type = ["cdylib"]
 

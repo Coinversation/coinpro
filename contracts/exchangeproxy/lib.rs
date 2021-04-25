@@ -74,6 +74,7 @@ mod exchangeproxy {
             let mut to: PAT = FromAccountId::from_account_id(token_out);
             let mut total_amount_out: u128 = 0;
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
+            assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
                 if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
@@ -110,6 +111,7 @@ mod exchangeproxy {
             let mut ti: PAT = FromAccountId::from_account_id(token_in);
             let mut to: PAT = FromAccountId::from_account_id(token_out);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
+            assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
                 if ti.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
@@ -143,6 +145,7 @@ mod exchangeproxy {
             let mut total_amount_out: u128 = 0;
             let mut to: PAT = FromAccountId::from_account_id(token_out);
             self.cdot.deposit();
+            assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
                 if self.cdot.allowance(self.env().account_id(), x.pool) < self.env().balance() {
@@ -182,6 +185,7 @@ mod exchangeproxy {
             let mut total_amount_out: u128 = 0;
             let mut ti: PAT = FromAccountId::from_account_id(token_in);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
+            assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
                 if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
@@ -216,6 +220,7 @@ mod exchangeproxy {
             let mut total_amount_in: u128 = 0;
             let mut to: PAT = FromAccountId::from_account_id(token_out);
             self.cdot.deposit();
+            assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
                 if to.allowance(self.env().account_id(), x.pool) < self.env().balance() {
@@ -255,6 +260,7 @@ mod exchangeproxy {
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
             // let swap: Vec<_> = swaps.iter().copied().collect();
             // for x in swap.clone().into_iter() {
+            assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
                 if ti.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
@@ -289,7 +295,7 @@ mod exchangeproxy {
 
         fn add(&self, a: u128, b: u128) -> u128 {
             let c = a + b;
-            assert!(c >= a);
+            assert!(c >= a,"add is overflow ");
             c
         }
 
