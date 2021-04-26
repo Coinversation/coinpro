@@ -20,23 +20,23 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod math {
-    pub const BONE: u128 = 1000000000000000000;
+    pub const BONE: u128 = 10000000000;
     pub const MIN_BOUND_TOKENS: u128  = 2;
     pub const MAX_BOUND_TOKENS: u128  = 8;
-    pub const MIN_FEE: u128           = 1000000000000;
-    pub const MAX_FEE: u128           = 100000000000000000;
-    pub const EXIT_FEE: u128          = 100000000000000;
+    pub const MIN_FEE: u128           = BONE / 1000000;
+    pub const MAX_FEE: u128           = BONE / 10;
+    pub const EXIT_FEE: u128          = 0;
 
     pub const MIN_WEIGHT: u128        = BONE;
     pub const MAX_WEIGHT: u128        = BONE * 50;
     pub const MAX_TOTAL_WEIGHT: u128  = BONE * 50;
-    pub const MIN_BALANCE: u128       = 1000000000000;
+    pub const MIN_BALANCE: u128       = 10000;
 
     pub const INIT_POOL_SUPPLY: u128  = BONE * 100;
 
     pub const MIN_BPOW_BASE: u128     = 1;
     pub const MAX_BPOW_BASE: u128     = (2 * BONE) - 1;
-    pub const BPOW_PRECISION: u128    = BONE / 10000000000;
+    pub const BPOW_PRECISION: u128    = BONE / 100;
 
     pub const MAX_IN_RATIO: u128      = BONE / 2;
     pub const MAX_OUT_RATIO: u128     = (BONE / 3) + 1;
@@ -87,8 +87,11 @@ mod math {
         pub fn bmul(&self, a : u128, b : u128) -> u128 {
             let c0 = a * b;
             assert!(a == 0 || c0 / a == b, "ERR_MUL_OVERFLOW");
+            ink_env::debug_println("assert 1");
+
             let c1 = c0 + (BONE / 2);
             assert!(c1 >= c0, "ERR_MUL_OVERFLOW");
+            ink_env::debug_println("assert 2");
             let c2 = c1 / BONE;
             return c2;
         }

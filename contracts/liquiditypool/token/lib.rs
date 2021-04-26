@@ -148,7 +148,7 @@ mod token {
 
         #[ink(message)]
         pub fn decimals(&self) -> u8 {
-            return 18;
+            return 10;
         }
 
         #[ink(message)]

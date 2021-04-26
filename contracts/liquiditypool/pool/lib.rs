@@ -598,10 +598,12 @@ mod pool {
                                     token_out: AccountId,
                                     min_amount_out: u128,
                                     max_price: u128) ->(u128, u128) {
+            debug_println("enter swap_exact_amount_in");
             self._logs_();
             self._lock_();
             self.require_valid_bound_swap(token_in, token_out);
 
+            debug_println("token isvalid");
             // @todo fix storage
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
@@ -609,14 +611,30 @@ mod pool {
             let out_record_balance = self._get_record(token_out).unwrap().balance;
             let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
+            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            ink_env::debug_println(&message);
+
+            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            ink_env::debug_println(&message1);
+
+            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            ink_env::debug_println(&message2);
+
+            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            ink_env::debug_println(&message3);
+
             assert!(token_amount_in <= self.math.bmul(in_record_balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+            debug_println("token_amount_in is valid");
 
             let spot_price_before = self.base.calc_spot_price(in_record_balance,
                                                               in_record_de_norm,
                                                               out_record_balance,
                                                               out_record_de_norm,
                                                               self.swap_fee);
+            debug_println("cal spot_price_before finish");
             assert!(spot_price_before <= max_price, "ERR_BAD_LIMIT_PRICE");
+            debug_println("spot_price_before is valid");
+
 
             let token_amount_out = self.base.calc_out_given_in(in_record_balance,
                                                                in_record_de_norm,
@@ -624,10 +642,12 @@ mod pool {
                                                                out_record_de_norm,
                                                                token_amount_in,
                                                                self.swap_fee);
+            debug_println("cal calc_out_given_in finish");
             assert!(token_amount_out >= min_amount_out, "ERR_LIMIT_OUT");
+            debug_println("token_amount_out is valid");
 
             let new_in_balance = self.math.badd(in_record_balance, token_amount_in);
-            let new_out_balance = self.math.badd(out_record_balance, token_amount_out);
+            let new_out_balance = self.math.bsub(out_record_balance, token_amount_out);
 
             let spot_price_after = self.base.calc_spot_price(new_in_balance,
                                                              in_record_de_norm,
@@ -635,12 +655,20 @@ mod pool {
                                                              out_record_de_norm,
                                                              self.swap_fee);
 
+            debug_println("calc_spot_price finish");
+
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish1");
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
+            debug_println("calc_spot_price finish1");
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish3");
 
             self._update_balance(token_in, new_in_balance);
             self._update_balance(token_out, new_out_balance);
+
+            debug_println("_update_balance finish");
+
             let (sender, this) = self._get_sender_and_this();
 
             self.env().emit_event(LogSwap {
@@ -653,6 +681,8 @@ mod pool {
 
             self._pull_underlying(token_in, sender, this, token_amount_in);
             self._push_underlying(token_out, sender, token_amount_out);
+            debug_println("transfer finish");
+
             self._unlock_();
 
             return (token_amount_out, spot_price_after);
@@ -667,7 +697,10 @@ mod pool {
                                      max_price: u128) ->(u128, u128) {
             self._logs_();
             self._lock_();
+            debug_println("enter swap_exact_amount_in");
             self.require_valid_bound_swap(token_in, token_out);
+
+            debug_println("token isvalid");
 
             // @todo fix storage
             let in_record_balance = self._get_record(token_in).unwrap().balance;
@@ -676,7 +709,21 @@ mod pool {
             let out_record_balance = self._get_record(token_out).unwrap().balance;
             let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
+            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            ink_env::debug_println(&message);
+
+            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            ink_env::debug_println(&message1);
+
+            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            ink_env::debug_println(&message2);
+
+            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            ink_env::debug_println(&message3);
+
             assert!(token_amount_out <= self.math.bmul(out_record_balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
+
+            debug_println("token_amount_out is valid");
 
             let spot_price_before = self.base.calc_spot_price(in_record_balance,
                                                               in_record_de_norm,
@@ -684,7 +731,11 @@ mod pool {
                                                               out_record_de_norm,
                                                               self.swap_fee);
 
+            debug_println("calc_spot_price finish");
+
             assert!(spot_price_before <= max_price, "ERR_BAD_LIMIT_PRICE");
+
+            debug_println("spot_price_before valid");
 
             let token_amount_in = self.base.calc_in_given_out(in_record_balance,
                                                               in_record_de_norm,
@@ -692,8 +743,10 @@ mod pool {
                                                               out_record_de_norm,
                                                               token_amount_out,
                                                               self.swap_fee);
+            debug_println("calc_in_given_out finish");
 
             assert!(token_amount_in <= max_amount_in, "ERR_LIMIT_IN");
+            debug_println("token_amount_in valid");
 
             let new_in_record_balance = self.math.badd(in_record_balance, token_amount_in);
             let new_out_record_balance = self.math.bsub(out_record_balance, token_amount_out);
@@ -704,12 +757,20 @@ mod pool {
                                                              out_record_de_norm,
                                                              self.swap_fee);
 
+            debug_println("calc_spot_price finish1");
+
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish2");
+
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
+            debug_println("calc_spot_price finish3");
+
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish4");
 
             self._update_balance(token_in, new_in_record_balance);
             self._update_balance(token_out, new_out_record_balance);
+            debug_println("_update_balance finish");
 
             let (sender, this) = self._get_sender_and_this();
 
@@ -723,6 +784,7 @@ mod pool {
 
             self._pull_underlying(token_in, sender, this, token_amount_in);
             self._push_underlying(token_out, sender, token_amount_out);
+            debug_println("transfer finish");
 
             self._unlock_();
             return (token_amount_in, spot_price_after);
@@ -785,22 +847,26 @@ mod pool {
                                          max_amount_in: u128) -> u128 {
             self._logs_();
             self._lock_();
+            debug_println("enter join_swap_pool_amount_out");
             self.require_finalize_bound(token_in);
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
+            debug_println("ready to cal");
             let token_amount_in = self.base.calc_single_in_given_pool_out(in_record_balance,
                                                                           in_record_de_norm,
                                                                           total_supply,
                                                                           self.total_weight,
                                                                           pool_amount_out,
                                                                           self.swap_fee);
-
+            debug_println("cal  finish");
             assert!(token_amount_in != 0, "ERR_MATH_APPROX");
+            debug_println("cal  finish1");
             assert!(token_amount_in <= max_amount_in, "ERR_LIMIT_IN");
-
+            debug_println("cal  finish2");
             assert!(token_amount_in <= self.math.bmul(in_record_balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+            debug_println("cal  finish3");
             self._update_balance(token_in, self.math.badd(in_record_balance, token_amount_in));
             let (sender, this) = self._get_sender_and_this();
 

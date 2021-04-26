@@ -92,7 +92,7 @@ mod factory {
             debug_println("token code hash and math address valid ");
 
             let token_params = Token::new(self.math_address)
-                .endowment(10000000000)
+                .endowment(20000000000)
                 .code_hash(self.token_code_hash)
                 .salt_bytes(salt)
                 .params();
