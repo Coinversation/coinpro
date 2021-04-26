@@ -1,51 +1,30 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use self::pat::Pat;
 use ink_lang as ink;
 
 #[ink::contract]
-mod cusd {
-    use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-            Vec as StorageVec,
-        },
-        traits::{PackedLayout, SpreadLayout},
-        Lazy,
-    };
+mod pat {
+    use ink_prelude::string::String;
 
-    use ink_prelude::{
-        vec::Vec,
-        format,
-    };
-
-    use ink_env::call::FromAccountId;
-    use core::convert::TryInto;
-    use ink_env::debug_println;
-
-    #[derive(
-    Debug, PartialEq, Eq, Clone, scale::Encode, scale::Decode, SpreadLayout, PackedLayout,
-    )]
-    #[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
-    )]
-    pub struct Record {
-        pub bound: bool,   // is token bound to pool
-        pub index: u128,   // private
-        pub de_norm: u128,  // denormalized weight
-        pub balance: u128,
+    /// The Pat (polkadot asset token) error types.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if not enough balance to fulfill a request is available.
+        InsufficientBalance,
+        InsufficientSupply,
+        /// Returned if not enough allowance to fulfill a request is available.
+        InsufficientAllowance,
     }
+
+    /// The Pat (polkadot asset token) result type.
+    pub type Result<T> = core::result::Result<T, Error>;
 
     #[ink(storage)]
-    pub struct Cusd {
-        /// Stores a single `bool` value on the storage.
-        value: bool,
-        pub records: StorageHashMap<u32, Record>,
-        pub tokens: StorageVec<u32>,
-    }
-
-    impl Cusd {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
+    pub struct Pat {}
+    impl Pat {
+        /// Creates a new Pat (polkadot asset token) contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
             Self {
@@ -83,56 +62,178 @@ mod cusd {
             self.tokens.push(3);
 
 
+       #[ink(constructor)]
+        pub fn new(
+            _initial_supply: Balance,
+            _name: Option<String>,
+            _symbol: Option<String>,
+            _decimals: Option<u8>,
+        ) -> Self {
+            unimplemented!()
         }
-    }
 
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
-    #[cfg(test)]
-    mod tests {
-        use super::*;
+        // /// Returns the token name.
+        // #[ink(message, selector = "0x6b1bb951")]
+        // pub fn token_name(&self) -> Option<String> {
+        //     unimplemented!()
+        // }
+        //
+        // /// Returns the token symbol.
+        // #[ink(message, selector = "0xb42c3368")]
+        // pub fn token_symbol(&self) -> Option<String> {
+        //     unimplemented!()
+        // }
+        //
+        // /// Returns the token decimals.
+        // #[ink(message, selector = "0xc64b0eb2")]
+        // pub fn token_decimals(&self) -> Option<u8> {
+        //     unimplemented!()
+        // }
+        //
+        // /// Returns the total token supply.
+        // #[ink(message, selector = "0x143862ae")]
+        // pub fn total_supply(&self) -> Balance {
+        //     unimplemented!()
+        // }
+        //
+        // /// Returns the account balance for the specified `owner`.
+        // ///
+        // /// Returns `0` if the account is non-existent.
+        // #[ink(message, selector = "0xb7d968c9")]
+        // pub fn balance_of(&self, _owner: AccountId) -> Balance {
+        //     unimplemented!()
+        // }
+        //
+        // /// Transfers `value` amount of tokens from the caller's account to account `to`.
+        // ///
+        // /// On success a `Transfer` event is emitted.
+        // ///
+        // /// # Errors
+        // ///
+        // /// Returns `InsufficientBalance` error if there are not enough tokens on
+        // /// the caller's account balance.
+        // #[ink(message, selector = "0x10d455c2")]
+        // pub fn transfer(&mut self, _to: AccountId, _value: Balance) -> Result<()> {
+        //     unimplemented!()
+        // }
+        //
+        // /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+        // ///
+        // /// Returns `0` if no allowance has been set `0`.
+        // #[ink(message, selector = "0xc04aa300")]
+        // pub fn allowance(&self, _owner: AccountId, _spender: AccountId) -> Balance {
+        //     unimplemented!()
+        // }
+        //
+        // /// Transfers `value` tokens on the behalf of `from` to the account `to`.
+        // ///
+        // /// This can be used to allow a contract to transfer tokens on ones behalf and/or
+        // /// to charge fees in sub-currencies, for example.
+        // ///
+        // /// On success a `Transfer` event is emitted.
+        // ///
+        // /// # Errors
+        // ///
+        // /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
+        // /// for the caller to withdraw from `from`.
+        // ///
+        // /// Returns `InsufficientBalance` error if there are not enough tokens on
+        // /// the the account balance of `from`.
+        // #[ink(message, selector = "0xbb399017")]
+        // pub fn transfer_from(
+        //     &mut self,
+        //     _from: AccountId,
+        //     _to: AccountId,
+        //     _value: Balance,
+        // ) -> Result<()> {
+        //     unimplemented!()
+        // }
+        //
+        // /// Allows `spender` to withdraw from the caller's account multiple times, up to
+        // /// the `value` amount.
+        // ///
+        // /// If this function is called again it overwrites the current allowance with `value`.
+        // ///
+        // /// An `Approval` event is emitted.
+        // #[ink(message, selector = "0x4ce0e831")]
+        // pub fn approve(&mut self, _spender: AccountId, _value: Balance) -> Result<()> {
+        //     unimplemented!()
+        // }
+        
+        /// Returns the token name.
+        #[ink(message, selector = "0xd3dc9f8c")]
+        pub fn token_name(&self) -> Option<String> {
+            unimplemented!()
+        }
 
-        use ink_lang as ink;
+        /// Returns the token symbol.
+        #[ink(message, selector = "0xe4ab4943")]
+        pub fn token_symbol(&self) -> Option<String> {
+            unimplemented!()
+        }
 
-        #[ink::test]
-        fn it_works() {
-            let mut cusd = Cusd::new(false);
-            // let r = Record {
-            //     bound: true,   // is token bound to pool
-            //     index: 1,   // private
-            //     de_norm: 1,  // denormalized weight
-            //     balance: 100,
-            // };
-            // cusd.records.insert(1, r);
-            //
-            // let cx = cusd.get_record(2);
-            // assert_eq!(cx.unwrap().bound, false);
-            //
-            // let cx1 = cusd.get_record(1);
-            // let r1 = cx1.unwrap();
-            // assert_eq!(r1.bound, true);
-            // assert_eq!(r1.index, 1);
-            // assert_eq!(r1.balance, 100);
-            // assert_eq!(r1.de_norm, 1);
+        /// Returns the token decimals.
+        #[ink(message, selector = "0xc4b508e2")]
+        pub fn token_decimals(&self) -> Option<u8> {
+            unimplemented!()
+        }
 
-            cusd.join_pool();
+        /// Returns the total token supply.
+        #[ink(message, selector = "0x557c8bd0")]
+        pub fn total_supply(&self) -> Balance {
+            unimplemented!()
+        }
 
-            let mut vec = Vec::new();
-            vec.push(2);
-            vec.push(3);
-            vec.push(4);
+        /// Returns the account balance for the specified `owner`.
+        #[ink(message, selector = "0xb13e6c24")]
+        pub fn balance_of(&self, _owner: AccountId) -> Balance {
+            unimplemented!()
+        }
 
-            println!("Element at position");
-            for (pos, e) in cusd.tokens.iter().enumerate() {
-                let message = format!("Element at position {}: {:?}", pos, e);
-                debug_println(&message);
+        /// Transfers `value` amount of tokens from the caller's account to account `to`.
+        #[ink(message, selector = "0xa6b726c7")]
+        pub fn transfer(&mut self, _to: AccountId, _value: Balance) -> Result<()> {
+            unimplemented!()
+        }
 
-                assert_eq!(vec[pos], pos + 1);
+        /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+        #[ink(message, selector = "0x984f2ea5")]
+        pub fn allowance(&self, _owner: AccountId, _spender: AccountId) -> Balance {
+            unimplemented!()
+        }
 
+        /// Transfers `value` tokens on the behalf of `from` to the account `to`.
+        #[ink(message, selector = "0xeb7943df")]
+        pub fn transfer_from(
+            &mut self,
+            _from: AccountId,
+            _to: AccountId,
+            _value: Balance,
+        ) -> Result<()> {
+            unimplemented!()
+        }
 
-                println!("Element at position {}: {:?}", pos, e);
-            }
+        /// Allows `spender` to withdraw from the caller's account multiple times, up to
+        /// the `value` amount.
+        #[ink(message, selector = "0x702770d4")]
+        pub fn approve(&mut self, _spender: AccountId, _value: Balance) -> Result<()> {
+            unimplemented!()
+        }
+
+        /// Issue a new amount of tokens
+        /// these tokens are deposited into the owner address
+        #[ink(message)]
+        pub fn mint(&mut self, _user: AccountId, _amount: Balance) -> Result<()> {
+            unimplemented!()
+        }
+
+        /// Redeem tokens.
+        /// These tokens are withdrawn from the owner address
+        /// if the balance must be enough to cover the redeem
+        /// or the call will fail.
+        #[ink(message)]
+        pub fn burn(&mut self, _user: AccountId, _amount: Balance) -> Result<()> {
+            unimplemented!()
         }
     }
 }
