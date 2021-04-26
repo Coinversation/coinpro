@@ -23,10 +23,46 @@ mod pat {
 
     #[ink(storage)]
     pub struct Pat {}
-
     impl Pat {
         /// Creates a new Pat (polkadot asset token) contract with the specified initial supply.
         #[ink(constructor)]
+        pub fn new(init_value: bool) -> Self {
+            Self {
+                value: init_value,
+                records: StorageHashMap::new(),
+                tokens: StorageVec::new(),
+            }
+        }
+
+        #[ink(message)]
+        pub fn build_empty_record(&self) -> Record {
+            Record {
+                bound: false,   // is token bound to pool
+                index: 0,   // private
+                de_norm: 0,  // denormalized weight
+                balance: 0,
+            }
+        }
+
+        #[ink(message)]
+        pub fn get_record(&self, token_id: u32) -> Option<Record> {
+            let r = self.build_empty_record();
+            let exist = self.records.contains_key(&token_id);
+            if !exist {
+                return Some(r)
+            }
+
+            return Some(self.records.get(&token_id).unwrap().clone());
+        }
+
+        #[ink(message)]
+        pub fn join_pool(&mut self) {
+            self.tokens.push(1);
+            self.tokens.push(2);
+            self.tokens.push(3);
+
+
+       #[ink(constructor)]
         pub fn new(
             _initial_supply: Balance,
             _name: Option<String>,

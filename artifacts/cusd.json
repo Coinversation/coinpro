@@ -1,0 +1,416 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0x041d7bca70fc43cfa92d236d73b63ddcf925fa93c42b83d94586448eef6b87a9",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "cusd",
+    "version": "0.1.0",
+    "authors": [
+      "[your_name] <[your_email]>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "init_value",
+            "type": {
+              "displayName": [
+                "bool"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          "Constructor that initializes the `bool` value to the given `init_value`."
+        ],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "events": [],
+    "messages": [
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "build_empty_record"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Record"
+          ],
+          "type": 7
+        },
+        "selector": "0x45a09fc9"
+      },
+      {
+        "args": [
+          {
+            "name": "token_id",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_record"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Option"
+          ],
+          "type": 9
+        },
+        "selector": "0x7e6cb4ce"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "join_pool"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xb4e4811a"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "value"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "cell": {
+                              "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+                              "ty": 2
+                            }
+                          },
+                          "name": "header"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "cell": {
+                                      "key": "0x0200000000000000000000000000000000000000000000000000000000000000",
+                                      "ty": 3
+                                    }
+                                  },
+                                  "name": "len"
+                                },
+                                {
+                                  "layout": {
+                                    "array": {
+                                      "cellsPerElem": 1,
+                                      "layout": {
+                                        "cell": {
+                                          "key": "0x0200000001000000000000000000000000000000000000000000000000000000",
+                                          "ty": 4
+                                        }
+                                      },
+                                      "len": 4294967295,
+                                      "offset": "0x0300000000000000000000000000000000000000000000000000000000000000"
+                                    }
+                                  },
+                                  "name": "elems"
+                                }
+                              ]
+                            }
+                          },
+                          "name": "entries"
+                        }
+                      ]
+                    }
+                  },
+                  "name": "keys"
+                },
+                {
+                  "layout": {
+                    "hash": {
+                      "layout": {
+                        "cell": {
+                          "key": "0x0300000001000000000000000000000000000000000000000000000000000000",
+                          "ty": 6
+                        }
+                      },
+                      "offset": "0x0200000001000000000000000000000000000000000000000000000000000000",
+                      "strategy": {
+                        "hasher": "Blake2x256",
+                        "postfix": "",
+                        "prefix": "0x696e6b20686173686d6170"
+                      }
+                    }
+                  },
+                  "name": "values"
+                }
+              ]
+            }
+          },
+          "name": "records"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0300000001000000000000000000000000000000000000000000000000000000",
+                      "ty": 3
+                    }
+                  },
+                  "name": "len"
+                },
+                {
+                  "layout": {
+                    "array": {
+                      "cellsPerElem": 1,
+                      "layout": {
+                        "cell": {
+                          "key": "0x0300000002000000000000000000000000000000000000000000000000000000",
+                          "ty": 3
+                        }
+                      },
+                      "len": 4294967295,
+                      "offset": "0x0400000001000000000000000000000000000000000000000000000000000000"
+                    }
+                  },
+                  "name": "elems"
+                }
+              ]
+            }
+          },
+          "name": "tokens"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "last_vacant",
+              "type": 3,
+              "typeName": "Index"
+            },
+            {
+              "name": "len",
+              "type": 3,
+              "typeName": "u32"
+            },
+            {
+              "name": "len_entries",
+              "type": 3,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Header"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 5,
+                  "typeName": "VacantEntry"
+                }
+              ],
+              "name": "Vacant"
+            },
+            {
+              "fields": [
+                {
+                  "type": 3,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Occupied"
+            }
+          ]
+        }
+      },
+      "params": [
+        3
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Entry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "next",
+              "type": 3,
+              "typeName": "Index"
+            },
+            {
+              "name": "prev",
+              "type": 3,
+              "typeName": "Index"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "VacantEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "value",
+              "type": 7,
+              "typeName": "V"
+            },
+            {
+              "name": "key_index",
+              "type": 3,
+              "typeName": "KeyIndex"
+            }
+          ]
+        }
+      },
+      "params": [
+        7
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "hashmap",
+        "ValueEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "bound",
+              "type": 1,
+              "typeName": "bool"
+            },
+            {
+              "name": "index",
+              "type": 8,
+              "typeName": "u128"
+            },
+            {
+              "name": "de_norm",
+              "type": 8,
+              "typeName": "u128"
+            },
+            {
+              "name": "balance",
+              "type": 8,
+              "typeName": "u128"
+            }
+          ]
+        }
+      },
+      "path": [
+        "cusd",
+        "cusd",
+        "Record"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u128"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 7,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        7
+      ],
+      "path": [
+        "Option"
+      ]
+    }
+  ]
+}

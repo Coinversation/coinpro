@@ -10,6 +10,7 @@ ink_metadata = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink
 ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
+ink_prelude = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 
 math = { version = "0.1.0", path = "math", default-features = false, features = ["ink-as-dependency"] }
 base = { version = "0.1.0", path = "base", default-features = false, features = ["ink-as-dependency"] }
@@ -39,6 +40,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
+    "ink_prelude/std",
 
     "math/std",
     "base/std",

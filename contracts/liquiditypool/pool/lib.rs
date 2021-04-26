@@ -5,7 +5,9 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod pool {
-    use ink_prelude::vec::Vec;
+    use ink_prelude::{
+        vec::Vec,
+    };
     use ink_storage::{
         collections::{
             HashMap as StorageHashMap,
@@ -14,6 +16,8 @@ mod pool {
         traits::{PackedLayout, SpreadLayout},
         Lazy,
     };
+    use ink_env::debug_println;
+
     use math::Math;
     use math::{
         EXIT_FEE,
@@ -31,6 +35,7 @@ mod pool {
     };
     use base::Base;
     use token::Token;
+    use cdot::PAT;
 
     use ink_env::call::FromAccountId;
     use core::convert::TryInto;
@@ -147,15 +152,15 @@ mod pool {
 
         fn _lock_(&mut self) {
             assert!(!self.mutex, "ERR_REENTRY");
-            self.mutex = true;
+            // self.mutex = true;
         }
 
-        fn _unlock_(&mut self) {
-            self.mutex = false;
-        }
+         fn _unlock_(&mut self) {
+            // self.mutex = false;
+         }
 
         fn _view_lock_(&self) {
-            assert!(!self.mutex, "ERR_REENTRY");
+            // assert!(!self.mutex, "ERR_REENTRY");
         }
 
         fn _get_sender(&self) -> AccountId {
@@ -169,15 +174,15 @@ mod pool {
             return (sender, this);
         }
 
-        pub fn _pull_underlying(&self, pat: AccountId, from: AccountId, to: AccountId, amount: u128) {
-            let mut token: Token = FromAccountId::from_account_id(pat);
-            let fer = token.transfer_from(from, to, amount);
+        pub fn _pull_underlying(&self, erc20: AccountId, from: AccountId, to: AccountId, amount: u128) {
+            let mut erc: PAT = FromAccountId::from_account_id(erc20);
+            let fer = erc.transfer_from(from, to, amount).is_ok();
             assert!(fer);
         }
 
-        pub fn _push_underlying(&self, pat: AccountId, to: AccountId, amount: u128) {
-            let mut token: Token = FromAccountId::from_account_id(pat);
-            let fer = token.transfer(to, amount);
+        pub fn _push_underlying(&self, erc20: AccountId, to: AccountId, amount: u128) {
+            let mut erc: PAT = FromAccountId::from_account_id(erc20);
+            let fer = erc.transfer(to, amount).is_ok();
             assert!(fer);
         }
 
@@ -195,6 +200,26 @@ mod pool {
 
         fn _burn_pool_share(&mut self, amount: u128) {
             self.token.burn(amount);
+        }
+
+        fn _build_empty_record(&self) -> Record {
+            Record {
+                bound: false,
+                index: 0,
+                de_norm: 0,
+                balance: 0,
+            }
+        }
+
+        #[ink(message)]
+        pub fn _get_record(&self, token_id: AccountId) -> Option<Record> {
+            let r = self._build_empty_record();
+            let exist = self.records.contains_key(&token_id);
+            if !exist {
+                return Some(r)
+            }
+
+            return Some(self.records.get(&token_id).unwrap().clone());
         }
 
         #[ink(message)]
@@ -219,7 +244,7 @@ mod pool {
 
         #[ink(message)]
         pub fn is_bound(&self, t: AccountId) -> bool {
-            return self.records[&t].bound;
+            return self._get_record(t).unwrap().bound;
         }
 
         #[ink(message)]
@@ -245,8 +270,8 @@ mod pool {
         #[ink(message)]
         pub fn get_denormalized_weight(&self, token: AccountId) -> u128 {
             self._view_lock_();
-            assert!(self.records[&token].bound, "ERR_NOT_BOUND");
-            return self.records[&token].de_norm;
+            assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
+            return self._get_record(token).unwrap().de_norm;
         }
 
         #[ink(message)]
@@ -258,8 +283,8 @@ mod pool {
         #[ink(message)]
         pub fn get_normalized_weight(&self, token: AccountId) -> u128 {
             self._view_lock_();
-            assert!(self.records[&token].bound, "ERR_NOT_BOUND");
-            let denorm: u128 = self.records[&token].de_norm;
+            assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
+            let denorm: u128 = self._get_record(token).unwrap().de_norm;
             let norm_weight: u128 = self.math.bdiv(denorm, self.total_weight);
             return norm_weight;
         }
@@ -267,8 +292,8 @@ mod pool {
         #[ink(message)]
         pub fn get_balance(&self, token: AccountId) -> u128 {
             self._view_lock_();
-            assert!(self.records[&token].bound, "ERR_NOT_BOUND");
-            return self.records[&token].balance;
+            assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
+            return self._get_record(token).unwrap().balance;
         }
 
         #[ink(message)]
@@ -290,8 +315,8 @@ mod pool {
 
             assert!(!self.finalized, "ERR_IS_FINALIZED");
             assert_eq!(self.controller, self._get_sender(), "ERR_NOT_CONTROLLER");
-            assert!(self.swap_fee >= MIN_FEE, "ERR_MIN_FEE");
-            assert!(self.swap_fee <= MAX_FEE, "ERR_MAX_FEE");
+            assert!(fee >= MIN_FEE, "ERR_MIN_FEE");
+            assert!(fee <= MAX_FEE, "ERR_MAX_FEE");
 
             self.swap_fee = fee;
         }
@@ -333,8 +358,9 @@ mod pool {
         #[ink(message)]
         pub fn bind(&mut self, token: AccountId, balance: u128, denorm:u128) {
             self._logs_();
+            debug_println("enter bind()");
             assert!(self.controller == self._get_sender(), "ERR_NOT_CONTROLLER");
-            assert!(!self.records[&token].bound, "ERR_IS_BOUND");
+            assert!(!self._get_record(token).unwrap().bound, "ERR_IS_BOUND");
             assert!(!self.finalized, "ERR_IS_FINALIZED");
             assert!(u128::from(self.tokens.len()) < MAX_BOUND_TOKENS, "ERR_MAX_TOKENS");
             let r = Record {
@@ -346,13 +372,14 @@ mod pool {
             self.records.insert(token, r);
             self.tokens.push(token);
 
+            debug_println("ready to enter rebind()");
             self.rebind(token, balance, denorm);
         }
 
         fn _require_bound_finalized_controller(&self, token: AccountId) {
             let sender = self._get_sender();
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
-            assert!(!self.records[&token].bound, "ERR_NOT_BOUND");
+            assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
             assert!(!self.finalized, "ERR_IS_FINALIZED");
         }
 
@@ -364,6 +391,7 @@ mod pool {
 
         #[ink(message)]
         pub fn rebind(&mut self, token: AccountId, balance: u128, denorm:u128) {
+            debug_println("enter rebind()");
             self._logs_();
             self._lock_();
 
@@ -375,8 +403,10 @@ mod pool {
             assert!(denorm <= MAX_WEIGHT, "ERR_MAX_WEIGHT");
             assert!(balance >= MIN_BALANCE, "ERR_MIN_BALANCE");
 
+            debug_println("ready to cal total_weight");
+
             // Adjust the denorm and totalWeight
-            let old_weight = self.records[&token].de_norm;
+            let old_weight = self._get_record(token).unwrap().de_norm;
             if denorm > old_weight {
                 self.total_weight = self.math.badd(self.total_weight, self.math.bsub(denorm, old_weight));
                 assert!(self.total_weight <= MAX_TOTAL_WEIGHT, "ERR_MAX_TOTAL_WEIGHT");
@@ -385,7 +415,7 @@ mod pool {
             }
 
             // Adjust the balance record and actual token balance
-            let old_balance = self.records[&token].balance;
+            let old_balance = self._get_record(token).unwrap().balance;
 
             if let Some(record) = self.records.get_mut(&token) {
                 record.balance = balance;
@@ -413,26 +443,20 @@ mod pool {
 
             self._require_bound_finalized_controller(token);
 
-            let token_balance = self.records[&token].balance;
+            let token_balance = self._get_record(token).unwrap().balance;
             let token_exit_fee = self.math.bmul(token_balance, EXIT_FEE);
 
-            self.total_weight = self.math.bsub(self.total_weight, self.records[&token].de_norm);
+            self.total_weight = self.math.bsub(self.total_weight, self._get_record(token).unwrap().de_norm);
 
             // Swap the token-to-unbind with the last token,
             // then delete the last token
-            let index = self.records[&token].index;
+            let index = self._get_record(token).unwrap().index;
             let last = self.tokens.len() - 1;
             self.tokens[index.try_into().unwrap()] = self.tokens[last];
             self.records[&self.tokens[index.try_into().unwrap()]].index = index;
             self.tokens.pop();
 
-            let r = Record{
-                bound: false,
-                index: 0,
-                de_norm: 0,
-                balance: 0
-            };
-
+            let r = self._build_empty_record();
             self.records.insert(token, r);
 
             self._push_underlying(token, sender, self.math.bsub(token_balance, token_exit_fee));
@@ -445,15 +469,18 @@ mod pool {
         pub fn gulp(&mut self, token: AccountId) {
             self._logs_();
             self._lock_();
-            assert!(!self.records[&token].bound, "ERR_NOT_BOUND");
-            let balance = self.token.balance_of(token);
+            assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
+
+            let erc: PAT = FromAccountId::from_account_id(token);
+            let (_sender, this) = self._get_sender_and_this();
+            let balance = erc.balance_of(this);
             self._update_balance(token, balance);
             self._unlock_();
         }
 
         fn require_valid_bound(&self, token_in: AccountId, token_out: AccountId) {
-            assert!(self.records[&token_in].bound, "ERR_NOT_BOUND");
-            assert!(self.records[&token_out].bound, "ERR_NOT_BOUND");
+            assert!(self._get_record(token_in).unwrap().bound, "ERR_NOT_BOUND");
+            assert!(self._get_record(token_out).unwrap().bound, "ERR_NOT_BOUND");
         }
 
         #[ink(message)]
@@ -461,8 +488,8 @@ mod pool {
             self._view_lock_();
             self.require_valid_bound(token_in, token_out);
 
-            let in_record = &self.records[&token_in];
-            let out_record = &self.records[&token_out];
+            let in_record = &self._get_record(token_in).unwrap();
+            let out_record = &self._get_record(token_out).unwrap();
             return self.base.calc_spot_price(in_record.balance, in_record.de_norm,
                                              out_record.balance, out_record.de_norm,
                                              self.swap_fee);
@@ -472,8 +499,8 @@ mod pool {
         pub fn get_spot_price_sans_fee(&mut self, token_in: AccountId, token_out: AccountId) -> u128 {
             self._view_lock_();
             self.require_valid_bound(token_in, token_out);
-            let in_record = &self.records[&token_in];
-            let out_record = &self.records[&token_out];
+            let in_record = &self._get_record(token_in).unwrap();
+            let out_record = &self._get_record(token_out).unwrap();
             return self.base.calc_spot_price(in_record.balance, in_record.de_norm,
                                              out_record.balance, out_record.de_norm, 0);
         }
@@ -493,13 +520,14 @@ mod pool {
             let mut i = 0;
             while i < self.tokens.len() {
                 let t = self.tokens[i];
-                let bal = self.records[&t].balance;
+                let bal = self._get_record(t).unwrap().balance;
                 let token_amount_in = self.math.bmul(ratio, bal);
                 assert!(token_amount_in != 0, "ERR_MATH_APPROX");
-                // @todo fix max_amounts_in[i]
-                //assert!(token_amount_in <= max_amounts_in[i]);
-                let mut balance = self.records[&t].balance;
-                balance = self.math.badd(balance, token_amount_in);
+
+                let pos = i as usize;
+                assert!(token_amount_in <= max_amounts_in[pos]);
+                let mut balance = self._get_record(t).unwrap().balance;
+                balance = self.math.badd(bal, token_amount_in);
                 self._update_balance(t, balance);
                 self.env().emit_event(LogJoin {
                     caller: Some(sender),
@@ -510,7 +538,6 @@ mod pool {
 
                 i += 1;
             }
-
 
             self._mint_pool_share(pool_amount_out);
             self._push_pool_share(sender, pool_amount_out);
@@ -539,12 +566,12 @@ mod pool {
             let mut i = 0;
             while i < self.tokens.len() {
                 let t = self.tokens[i];
-                let bal = self.records[&t].balance;
+                let bal = self._get_record(t).unwrap().balance;
                 let token_amount_out = self.math.bmul(ratio, bal);
                 assert!(token_amount_out != 0, "ERR_MATH_APPROX");
-                // @todo fix min_amounts_out[i]
-                //assert!(token_amount_out >= min_amounts_out[i]);
-                let mut balance = self.records[&t].balance;
+                let pos = i as usize;
+                assert!(token_amount_out >= min_amounts_out[pos]);
+                let mut balance = self._get_record(t).unwrap().balance;
                 balance = self.math.bsub(balance, token_amount_out);
                 self._update_balance(t, balance);
                 self.env().emit_event(LogExit {
@@ -571,25 +598,43 @@ mod pool {
                                     token_out: AccountId,
                                     min_amount_out: u128,
                                     max_price: u128) ->(u128, u128) {
+            debug_println("enter swap_exact_amount_in");
             self._logs_();
             self._lock_();
             self.require_valid_bound_swap(token_in, token_out);
 
+            debug_println("token isvalid");
             // @todo fix storage
-            let in_record_balance = self.records[&token_in].balance;
-            let in_record_de_norm = self.records[&token_in].de_norm;
+            let in_record_balance = self._get_record(token_in).unwrap().balance;
+            let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
-            let out_record_balance = self.records[&token_out].balance;
-            let out_record_de_norm = self.records[&token_out].de_norm;
+            let out_record_balance = self._get_record(token_out).unwrap().balance;
+            let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
+
+            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            ink_env::debug_println(&message);
+
+            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            ink_env::debug_println(&message1);
+
+            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            ink_env::debug_println(&message2);
+
+            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            ink_env::debug_println(&message3);
 
             assert!(token_amount_in <= self.math.bmul(in_record_balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+            debug_println("token_amount_in is valid");
 
             let spot_price_before = self.base.calc_spot_price(in_record_balance,
                                                               in_record_de_norm,
                                                               out_record_balance,
                                                               out_record_de_norm,
                                                               self.swap_fee);
+            debug_println("cal spot_price_before finish");
             assert!(spot_price_before <= max_price, "ERR_BAD_LIMIT_PRICE");
+            debug_println("spot_price_before is valid");
+
 
             let token_amount_out = self.base.calc_out_given_in(in_record_balance,
                                                                in_record_de_norm,
@@ -597,10 +642,12 @@ mod pool {
                                                                out_record_de_norm,
                                                                token_amount_in,
                                                                self.swap_fee);
+            debug_println("cal calc_out_given_in finish");
             assert!(token_amount_out >= min_amount_out, "ERR_LIMIT_OUT");
+            debug_println("token_amount_out is valid");
 
             let new_in_balance = self.math.badd(in_record_balance, token_amount_in);
-            let new_out_balance = self.math.badd(out_record_balance, token_amount_out);
+            let new_out_balance = self.math.bsub(out_record_balance, token_amount_out);
 
             let spot_price_after = self.base.calc_spot_price(new_in_balance,
                                                              in_record_de_norm,
@@ -608,12 +655,20 @@ mod pool {
                                                              out_record_de_norm,
                                                              self.swap_fee);
 
+            debug_println("calc_spot_price finish");
+
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish1");
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
+            debug_println("calc_spot_price finish1");
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish3");
 
             self._update_balance(token_in, new_in_balance);
             self._update_balance(token_out, new_out_balance);
+
+            debug_println("_update_balance finish");
+
             let (sender, this) = self._get_sender_and_this();
 
             self.env().emit_event(LogSwap {
@@ -626,6 +681,8 @@ mod pool {
 
             self._pull_underlying(token_in, sender, this, token_amount_in);
             self._push_underlying(token_out, sender, token_amount_out);
+            debug_println("transfer finish");
+
             self._unlock_();
 
             return (token_amount_out, spot_price_after);
@@ -640,16 +697,33 @@ mod pool {
                                      max_price: u128) ->(u128, u128) {
             self._logs_();
             self._lock_();
+            debug_println("enter swap_exact_amount_in");
             self.require_valid_bound_swap(token_in, token_out);
 
-            // @todo fix storage
-            let in_record_balance = self.records[&token_in].balance;
-            let in_record_de_norm = self.records[&token_in].de_norm;
+            debug_println("token isvalid");
 
-            let out_record_balance = self.records[&token_in].balance;
-            let out_record_de_norm = self.records[&token_in].de_norm;
+            // @todo fix storage
+            let in_record_balance = self._get_record(token_in).unwrap().balance;
+            let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
+
+            let out_record_balance = self._get_record(token_out).unwrap().balance;
+            let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
+
+            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            ink_env::debug_println(&message);
+
+            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            ink_env::debug_println(&message1);
+
+            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            ink_env::debug_println(&message2);
+
+            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            ink_env::debug_println(&message3);
 
             assert!(token_amount_out <= self.math.bmul(out_record_balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
+
+            debug_println("token_amount_out is valid");
 
             let spot_price_before = self.base.calc_spot_price(in_record_balance,
                                                               in_record_de_norm,
@@ -657,7 +731,11 @@ mod pool {
                                                               out_record_de_norm,
                                                               self.swap_fee);
 
+            debug_println("calc_spot_price finish");
+
             assert!(spot_price_before <= max_price, "ERR_BAD_LIMIT_PRICE");
+
+            debug_println("spot_price_before valid");
 
             let token_amount_in = self.base.calc_in_given_out(in_record_balance,
                                                               in_record_de_norm,
@@ -665,8 +743,10 @@ mod pool {
                                                               out_record_de_norm,
                                                               token_amount_out,
                                                               self.swap_fee);
+            debug_println("calc_in_given_out finish");
 
             assert!(token_amount_in <= max_amount_in, "ERR_LIMIT_IN");
+            debug_println("token_amount_in valid");
 
             let new_in_record_balance = self.math.badd(in_record_balance, token_amount_in);
             let new_out_record_balance = self.math.bsub(out_record_balance, token_amount_out);
@@ -677,12 +757,20 @@ mod pool {
                                                              out_record_de_norm,
                                                              self.swap_fee);
 
+            debug_println("calc_spot_price finish1");
+
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish2");
+
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
+            debug_println("calc_spot_price finish3");
+
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
+            debug_println("calc_spot_price finish4");
 
             self._update_balance(token_in, new_in_record_balance);
             self._update_balance(token_out, new_out_record_balance);
+            debug_println("_update_balance finish");
 
             let (sender, this) = self._get_sender_and_this();
 
@@ -696,6 +784,7 @@ mod pool {
 
             self._pull_underlying(token_in, sender, this, token_amount_in);
             self._push_underlying(token_out, sender, token_amount_out);
+            debug_println("transfer finish");
 
             self._unlock_();
             return (token_amount_in, spot_price_after);
@@ -703,7 +792,7 @@ mod pool {
 
         fn require_finalize_bound(&self, token_in: AccountId) {
             assert!(self.finalized, "ERR_NOT_FINALIZED");
-            assert!(self.records[&token_in].bound, "ERR_NOT_BOUND");
+            assert!(self._get_record(token_in).unwrap().bound, "ERR_NOT_BOUND");
         }
 
         #[ink(message)]
@@ -713,22 +802,28 @@ mod pool {
                                           min_pool_amount_out: u128) -> u128 {
             self._logs_();
             self._lock_();
+            debug_println("enter join_swap_extern_amount_in");
+
             self.require_finalize_bound(token_in);
-            assert!(token_amount_in <= self.math.bmul(self.records[&token_in].balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+            assert!(token_amount_in <= self.math.bmul(self._get_record(token_in).unwrap().balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+
 
             // @todo fix storage
-            let in_record_balance = self.records[&token_in].balance;
-            let in_record_de_norm = self.records[&token_in].de_norm;
+            let in_record_balance = self._get_record(token_in).unwrap().balance;
+            let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
+
+            debug_println("ready to cal");
             let pool_amount_out = self.base.calc_pool_out_given_single_in(in_record_balance,
                                                                           in_record_de_norm,
                                                                           total_supply,
                                                                           self.total_weight,
                                                                           token_amount_in,
                                                                           self.swap_fee);
-
             assert!(pool_amount_out >= min_pool_amount_out, "ERR_LIMIT_OUT");
+            debug_println("cal finish");
+
             self._update_balance(token_in, self.math.badd(in_record_balance, token_amount_in));
             let (sender, this) = self._get_sender_and_this();
 
@@ -752,22 +847,26 @@ mod pool {
                                          max_amount_in: u128) -> u128 {
             self._logs_();
             self._lock_();
+            debug_println("enter join_swap_pool_amount_out");
             self.require_finalize_bound(token_in);
-            let in_record_balance = self.records[&token_in].balance;
-            let in_record_de_norm = self.records[&token_in].de_norm;
+            let in_record_balance = self._get_record(token_in).unwrap().balance;
+            let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
+            debug_println("ready to cal");
             let token_amount_in = self.base.calc_single_in_given_pool_out(in_record_balance,
                                                                           in_record_de_norm,
                                                                           total_supply,
                                                                           self.total_weight,
                                                                           pool_amount_out,
                                                                           self.swap_fee);
-
+            debug_println("cal  finish");
             assert!(token_amount_in != 0, "ERR_MATH_APPROX");
+            debug_println("cal  finish1");
             assert!(token_amount_in <= max_amount_in, "ERR_LIMIT_IN");
-
+            debug_println("cal  finish2");
             assert!(token_amount_in <= self.math.bmul(in_record_balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
+            debug_println("cal  finish3");
             self._update_balance(token_in, self.math.badd(in_record_balance, token_amount_in));
             let (sender, this) = self._get_sender_and_this();
 
@@ -795,8 +894,8 @@ mod pool {
 
             self.require_finalize_bound(token_out);
             // @todo fix storage
-            let out_record_balance = self.records[&token_out].balance;
-            let out_record_de_norm = self.records[&token_out].de_norm;
+            let out_record_balance = self._get_record(token_out).unwrap().balance;
+            let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
 
@@ -838,11 +937,11 @@ mod pool {
             self._logs_();
             self._lock_();
             self.require_finalize_bound(token_out);
-            assert!(token_amount_out <= self.math.bmul(self.records[&token_out].balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
+            assert!(token_amount_out <= self.math.bmul(self._get_record(token_out).unwrap().balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
 
             // @todo fix storage
-            let out_record_balance = self.records[&token_out].balance;
-            let out_record_de_norm = self.records[&token_out].de_norm;
+            let out_record_balance = self._get_record(token_out).unwrap().balance;
+            let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
             let pool_amount_in = self.base.calc_pool_in_given_single_out(
