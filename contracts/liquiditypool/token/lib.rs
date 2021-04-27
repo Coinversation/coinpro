@@ -15,20 +15,17 @@ mod token {
     };
 
     use ink_env::call::FromAccountId;
+    use ink_prelude::string::ToString;
 
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct Token {
         math: Lazy<Math>,
-        /// Total token supply.
         total_supply: u128,
-        /// Mapping from owner to number of owned token.
         balances: StorageHashMap<AccountId, u128>,
-        /// Mapping of the token amount which an account is allowed to withdraw
-        /// from another account.
         allowances: StorageHashMap<(AccountId, AccountId), u128>,
+        name: Option<String>,
+        symbol: Option<String>,
+        decimals: Option<u8>,
     }
 
     /// Event emitted when a token transfer occurs.
@@ -63,6 +60,10 @@ mod token {
                 total_supply: 0,
                 balances: StorageHashMap::new(),
                 allowances: StorageHashMap::new(),
+
+                name: Some("Conversation Pool Token".to_string()),
+                symbol: Some("CPT".to_string()),
+                decimals: Some(10),
             }
         }
 
@@ -132,13 +133,13 @@ mod token {
         }
 
         #[ink(message)]
-        pub fn name(&self) -> String {
-            return String::from("Conversation Pool Token");
+        pub fn name(&self) -> Option<String> {
+            self.name.clone()
         }
 
         #[ink(message)]
-        pub fn symbol(&self) -> String {
-            return String::from("CPT");
+        pub fn symbol(&self) -> Option<String> {
+            self.symbol.clone()
         }
 
         #[ink(message)]
@@ -147,8 +148,8 @@ mod token {
         }
 
         #[ink(message)]
-        pub fn decimals(&self) -> u8 {
-            return 10;
+        pub fn decimals(&self) -> Option<u8> {
+            self.decimals
         }
 
         #[ink(message)]

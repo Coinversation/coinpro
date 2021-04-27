@@ -141,13 +141,13 @@ mod pool {
 
         fn _logs_(&self) {
             let caller = Self::env().caller();
-            self.env().emit_event(LogCall {
-                // @todo lipu: fix this field
-                sig: [0x00; 4],
-                caller: Some(caller),
-                // @todo lipu: fix this field
-                data: [0x00; 4].to_vec(),
-            });
+            // self.env().emit_event(LogCall {
+            //     // @todo lipu: fix this field
+            //     sig: [0x00; 4],
+            //     caller: Some(caller),
+            //     // @todo lipu: fix this field
+            //     data: [0x00; 4].to_vec(),
+            // });
         }
 
         fn _lock_(&mut self) {
@@ -175,6 +175,9 @@ mod pool {
         }
 
         pub fn _pull_underlying(&self, erc20: AccountId, from: AccountId, to: AccountId, amount: u128) {
+            let message1 = ink_prelude::format!("_pull_underlying amount is {:?}", amount);
+            ink_env::debug_println(&message1);
+
             let mut erc: PAT = FromAccountId::from_account_id(erc20);
             let fer = erc.transfer_from(from, to, amount).is_ok();
             assert!(fer);

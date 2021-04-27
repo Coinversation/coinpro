@@ -84,7 +84,9 @@ mod factory {
         }
 
         #[ink(message)]
-        pub fn new_pool(&mut self,  ts: u32) -> AccountId {
+        pub fn new_pool(&mut self,  ts: u32,
+                        token_endowment: u128,
+                        pool_endowment: u128) -> AccountId {
             let salt = ts.to_le_bytes();
             debug_println("enter ");
             assert_ne!(self.token_code_hash, Hash::from([0; 32]));
@@ -92,7 +94,8 @@ mod factory {
             debug_println("token code hash and math address valid ");
 
             let token_params = Token::new(self.math_address)
-                .endowment(20000000000)
+                // .endowment(20000000000)
+                .endowment(token_endowment)
                 .code_hash(self.token_code_hash)
                 .salt_bytes(salt)
                 .params();
@@ -107,7 +110,8 @@ mod factory {
             debug_println("instantiate token succeed");
 
             let pool_params = Pool::new(self.math_address, self.base_address, token_address)
-                .endowment(20000000000)
+                // .endowment(20000000000)
+                .endowment(pool_endowment)
                 .code_hash(self.pool_code_hash)
                 .salt_bytes(salt)
                 .params();
