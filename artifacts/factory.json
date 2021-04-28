@@ -1,7 +1,7 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xd1011948b35e6803b53074b2bc030e624ecdc908707bbe75ff601c3546701a99",
+    "hash": "0x0244afd1ee628e4d58c61b9e2f674ebd52828c5649d40cdcfa6ef633da389a00",
     "language": "ink! 3.0.0-rc3",
     "compiler": "rustc 1.52.0-nightly"
   },
@@ -149,7 +149,7 @@
       {
         "args": [
           {
-            "name": "ts",
+            "name": "salt",
             "type": {
               "displayName": [
                 "u32"

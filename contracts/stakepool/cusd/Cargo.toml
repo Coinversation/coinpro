@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2018"
 
+[dependencies]
+
 ink_primitives = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_metadata = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
@@ -21,8 +23,8 @@ funty = "=1.1.0"
 name = "cusd"
 path = "lib.rs"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
     # Used for ABI generation.
     "rlib",
 ]
@@ -36,6 +38,5 @@ std = [
     "ink_primitives/std",
     "scale/std",
     "scale-info/std",
-    "ink_prelude/std",
 ]
 ink-as-dependency = []

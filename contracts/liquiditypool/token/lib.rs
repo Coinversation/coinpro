@@ -19,6 +19,7 @@ mod token {
 
     #[ink(storage)]
     pub struct Token {
+        controller: AccountId,
         math: Lazy<Math>,
         total_supply: u128,
         balances: StorageHashMap<AccountId, u128>,
@@ -54,8 +55,10 @@ mod token {
     impl Token {
         #[ink(constructor)]
         pub fn new(math_address: AccountId) -> Self {
+            let controller = Self::env().caller();
             let math: Math = FromAccountId::from_account_id(math_address);
             Self {
+                controller,
                 math: Lazy::new(math),
                 total_supply: 0,
                 balances: StorageHashMap::new(),
@@ -70,6 +73,8 @@ mod token {
         #[ink(message)]
         pub fn mint(&mut self, amt:u128) {
             let from = self.env().caller();
+            assert!(self.controller == from, "ERR_NOT_CONTROLLER");
+
             let balance = self.balance_of(from);
             let balance = self.math.badd(balance, amt);
             self.balances.insert(from, balance);
@@ -85,6 +90,8 @@ mod token {
         #[ink(message)]
         pub fn burn(&mut self, amt:u128) {
             let from = self.env().caller();
+            assert!(self.controller == from, "ERR_NOT_CONTROLLER");
+
             let balance = self.balance_of(from);
             assert!(balance >= amt, "ERR_INSUFFICIENT_BAL");
             let balance = self.math.bsub(balance, amt);
@@ -99,6 +106,7 @@ mod token {
 
         #[ink(message)]
         pub fn trans(&mut self, from:AccountId, to:AccountId, amt:u128) {
+            assert!(self.controller == Self::env().caller(), "ERR_NOT_CONTROLLER");
             let from_balance = self.balance_of(from);
             assert!(from_balance >= amt, "ERR_INSUFFICIENT_BAL");
             let from_balance = self.math.bsub(from_balance, amt);
@@ -118,12 +126,16 @@ mod token {
         #[ink(message)]
         pub fn push(&mut self, to : AccountId, amt:u128) {
             let from = self.env().caller();
+            assert!(self.controller == from, "ERR_NOT_CONTROLLER");
+
             self.trans(from, to, amt);
         }
 
         #[ink(message)]
         pub fn pull(&mut self, from : AccountId, amt:u128) {
             let to = self.env().caller();
+            assert!(self.controller == to, "ERR_NOT_CONTROLLER");
+
             self.trans(from, to, amt);
         }
 
@@ -160,6 +172,8 @@ mod token {
         #[ink(message)]
         pub fn approve(&mut self, spender: AccountId, value: u128)  {
             let owner = self.env().caller();
+            assert!(self.controller == owner, "ERR_NOT_CONTROLLER");
+
             self.allowances.insert((owner, spender), value);
             self.env().emit_event(Approval {
                 owner,
@@ -171,6 +185,8 @@ mod token {
         #[ink(message)]
         pub fn increase_approval(&mut self, spender: AccountId, value: u128) {
             let owner = self.env().caller();
+            assert!(self.controller == owner, "ERR_NOT_CONTROLLER");
+
             let balance = self.allowance(owner, spender);
             let balance = self.math.badd(balance, value);
             self.allowances.insert((owner, spender), balance);
@@ -184,6 +200,8 @@ mod token {
         #[ink(message)]
         pub fn decrease_approval(&mut self, spender: AccountId, value: u128) {
             let owner = self.env().caller();
+            assert!(self.controller == owner, "ERR_NOT_CONTROLLER");
+
             let old_value = self.allowance(owner, spender);
             if value > old_value {
                 self.allowances.insert((owner, spender), 0);
@@ -201,6 +219,8 @@ mod token {
         #[ink(message)]
         pub fn transfer(&mut self, to: AccountId, value: u128) -> bool {
             let owner = self.env().caller();
+            assert!(self.controller == owner, "ERR_NOT_CONTROLLER");
+
             self.trans(owner, to, value);
             return true;
         }
@@ -208,6 +228,8 @@ mod token {
         #[ink(message)]
         pub fn transfer_from(&mut self, from: AccountId, to: AccountId, value: u128) -> bool {
             let owner = self.env().caller();
+            assert!(self.controller == owner, "ERR_NOT_CONTROLLER");
+
             let allow = self.allowance(from, owner);
             assert!(owner == from || value < allow, "ERR_BTOKEN_BAD_CALLER");
             self.trans(from, to, value);
@@ -222,6 +244,12 @@ mod token {
                 });
             }
             return true;
+        }
+
+        #[ink(message)]
+        pub fn set_controller(&mut self, manager:AccountId) {
+            assert!(self.controller == Self::env().caller(), "ERR_NOT_CONTROLLER");
+            self.controller = manager;
         }
     }
 
