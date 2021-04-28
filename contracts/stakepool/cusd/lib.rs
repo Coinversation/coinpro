@@ -123,7 +123,7 @@ mod pat {
         // pub fn approve(&mut self, _spender: AccountId, _value: Balance) -> Result<()> {
         //     unimplemented!()
         // }
-        
+
         /// Returns the token name.
         #[ink(message, selector = "0xd3dc9f8c")]
         pub fn token_name(&self) -> Option<String> {

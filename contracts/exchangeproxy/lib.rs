@@ -89,9 +89,9 @@ mod exchangeproxy {
                 );
                 total_amount_out = self.add(token_amount_out, total_amount_out);
             }
-            assert!(total_amount_out>=min_total_amount_out);
-            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok());
-            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok());
+            assert!(total_amount_out>=min_total_amount_out, "ERR_LIMIT_OUT");
+            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
+            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
             self._unlocks_();
             total_amount_out
         }
@@ -126,9 +126,9 @@ mod exchangeproxy {
                 );
                 total_amount_in = self.add(token_amount_in, total_amount_in);
             }
-            assert!(total_amount_in<=max_total_amount_in);
-            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok());
-            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok());
+            assert!(total_amount_in<=max_total_amount_in,"ERR_LIMIT_IN");
+            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
+            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
             self._unlocks_();
             total_amount_in
         }

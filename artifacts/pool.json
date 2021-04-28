@@ -1,0 +1,1696 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0xef0cf194560c782ef1168bde8243d69b146d6da11399fcc8d0813c7ae393de5c",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.52.0-nightly"
+  },
+  "contract": {
+    "name": "pool",
+    "version": "0.1.0",
+    "authors": [
+      "lipu <83365885@qq.com>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "math_address",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "base_address",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_address",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "name": "token_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "name": "token_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "name": "LogSwap"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "name": "token_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "name": "LogJoin"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "name": "token_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "name": "LogExit"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "sig",
+            "type": {
+              "displayName": [],
+              "type": 17
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 16
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "name": "data",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 18
+            }
+          }
+        ],
+        "docs": [],
+        "name": "LogCall"
+      }
+    ],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "token_id",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "_get_record"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Option"
+          ],
+          "type": 12
+        },
+        "selector": "0xc418e3a9"
+      },
+      {
+        "args": [
+          {
+            "name": "owner",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "balance_of"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x0f755a56"
+      },
+      {
+        "args": [
+          {
+            "name": "to",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "value",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "transfer"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "bool"
+          ],
+          "type": 1
+        },
+        "selector": "0x84a15da1"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "is_public_swap"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "bool"
+          ],
+          "type": 1
+        },
+        "selector": "0x678585fd"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "is_finalized"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "bool"
+          ],
+          "type": 1
+        },
+        "selector": "0xb5ea21b9"
+      },
+      {
+        "args": [
+          {
+            "name": "t",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "is_bound"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "bool"
+          ],
+          "type": 1
+        },
+        "selector": "0x2ef8c517"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_num_tokens"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x3f23dfc8"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_current_tokens"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 13
+        },
+        "selector": "0x4043ffd2"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_final_tokens"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Vec"
+          ],
+          "type": 13
+        },
+        "selector": "0x5f73f61a"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_denormalized_weight"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0xa58477ae"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_total_denormalized_weight"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0xb371ab8c"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_normalized_weight"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x03baf6c6"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_balance"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0xea817e65"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_swap_fee"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x1e8ef815"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": false,
+        "name": [
+          "get_controller"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "AccountId"
+          ],
+          "type": 2
+        },
+        "selector": "0x0abf0e97"
+      },
+      {
+        "args": [
+          {
+            "name": "fee",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "set_swap_fee"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x243604b7"
+      },
+      {
+        "args": [
+          {
+            "name": "manager",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "set_controller"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xc5e161ea"
+      },
+      {
+        "args": [
+          {
+            "name": "public",
+            "type": {
+              "displayName": [
+                "bool"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "set_public_swap"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xc102cb11"
+      },
+      {
+        "args": [],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "finalize"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x40656e2b"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "balance",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "denorm",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "bind"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xf539c94f"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "balance",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "denorm",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "rebind"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x2f078b78"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "unbind"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xfdcb6c47"
+      },
+      {
+        "args": [
+          {
+            "name": "token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "gulp"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x6c47f554"
+      },
+      {
+        "args": [
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "get_spot_price"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0xc85851a2"
+      },
+      {
+        "args": [
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "get_spot_price_sans_fee"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x22ad3d90"
+      },
+      {
+        "args": [
+          {
+            "name": "pool_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "max_amounts_in",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 14
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "join_pool"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0xb4e4811a"
+      },
+      {
+        "args": [
+          {
+            "name": "pool_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "min_amounts_out",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 14
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "exit_pool"
+        ],
+        "payable": false,
+        "returnType": null,
+        "selector": "0x9c317448"
+      },
+      {
+        "args": [
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "min_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "max_price",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "swap_exact_amount_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [],
+          "type": 15
+        },
+        "selector": "0xb8d31f2b"
+      },
+      {
+        "args": [
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "max_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "max_price",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "swap_exact_amount_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [],
+          "type": 15
+        },
+        "selector": "0xea22300b"
+      },
+      {
+        "args": [
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "min_pool_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "join_swap_extern_amount_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x03ee76b0"
+      },
+      {
+        "args": [
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "pool_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "max_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "join_swap_pool_amount_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x4837c236"
+      },
+      {
+        "args": [
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "pool_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "min_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "exit_swap_pool_amount_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0x07334cd6"
+      },
+      {
+        "args": [
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "max_pool_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "exit_swap_extern_amount_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 5
+        },
+        "selector": "0xc965d951"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "mutex"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+              "ty": 2
+            }
+          },
+          "name": "factory"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0200000000000000000000000000000000000000000000000000000000000000",
+              "ty": 2
+            }
+          },
+          "name": "controller"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0300000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "public_swap"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0400000000000000000000000000000000000000000000000000000000000000",
+              "ty": 5
+            }
+          },
+          "name": "swap_fee"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0500000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "finalized"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0600000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 6
+                    }
+                  },
+                  "name": "len"
+                },
+                {
+                  "layout": {
+                    "array": {
+                      "cellsPerElem": 1,
+                      "layout": {
+                        "cell": {
+                          "key": "0x0600000001000000000000000000000000000000000000000000000000000000",
+                          "ty": 2
+                        }
+                      },
+                      "len": 4294967295,
+                      "offset": "0x0700000000000000000000000000000000000000000000000000000000000000"
+                    }
+                  },
+                  "name": "elems"
+                }
+              ]
+            }
+          },
+          "name": "tokens"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "cell": {
+                              "key": "0x0600000001000000000000000000000000000000000000000000000000000000",
+                              "ty": 7
+                            }
+                          },
+                          "name": "header"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "cell": {
+                                      "key": "0x0700000001000000000000000000000000000000000000000000000000000000",
+                                      "ty": 6
+                                    }
+                                  },
+                                  "name": "len"
+                                },
+                                {
+                                  "layout": {
+                                    "array": {
+                                      "cellsPerElem": 1,
+                                      "layout": {
+                                        "cell": {
+                                          "key": "0x0700000002000000000000000000000000000000000000000000000000000000",
+                                          "ty": 8
+                                        }
+                                      },
+                                      "len": 4294967295,
+                                      "offset": "0x0800000001000000000000000000000000000000000000000000000000000000"
+                                    }
+                                  },
+                                  "name": "elems"
+                                }
+                              ]
+                            }
+                          },
+                          "name": "entries"
+                        }
+                      ]
+                    }
+                  },
+                  "name": "keys"
+                },
+                {
+                  "layout": {
+                    "hash": {
+                      "layout": {
+                        "cell": {
+                          "key": "0x0800000002000000000000000000000000000000000000000000000000000000",
+                          "ty": 10
+                        }
+                      },
+                      "offset": "0x0700000002000000000000000000000000000000000000000000000000000000",
+                      "strategy": {
+                        "hasher": "Blake2x256",
+                        "postfix": "",
+                        "prefix": "0x696e6b20686173686d6170"
+                      }
+                    }
+                  },
+                  "name": "values"
+                }
+              ]
+            }
+          },
+          "name": "records"
+        },
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0800000002000000000000000000000000000000000000000000000000000000",
+              "ty": 5
+            }
+          },
+          "name": "total_weight"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0900000002000000000000000000000000000000000000000000000000000000",
+                      "ty": 2
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "base"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0a00000002000000000000000000000000000000000000000000000000000000",
+                      "ty": 2
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "math"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0b00000002000000000000000000000000000000000000000000000000000000",
+                      "ty": 2
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "token"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 3,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 4
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u128"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u32"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "last_vacant",
+              "type": 6,
+              "typeName": "Index"
+            },
+            {
+              "name": "len",
+              "type": 6,
+              "typeName": "u32"
+            },
+            {
+              "name": "len_entries",
+              "type": 6,
+              "typeName": "u32"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Header"
+      ]
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 9,
+                  "typeName": "VacantEntry"
+                }
+              ],
+              "name": "Vacant"
+            },
+            {
+              "fields": [
+                {
+                  "type": 2,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Occupied"
+            }
+          ]
+        }
+      },
+      "params": [
+        2
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "Entry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "next",
+              "type": 6,
+              "typeName": "Index"
+            },
+            {
+              "name": "prev",
+              "type": 6,
+              "typeName": "Index"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_storage",
+        "collections",
+        "stash",
+        "VacantEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "value",
+              "type": 11,
+              "typeName": "V"
+            },
+            {
+              "name": "key_index",
+              "type": 6,
+              "typeName": "KeyIndex"
+            }
+          ]
+        }
+      },
+      "params": [
+        11
+      ],
+      "path": [
+        "ink_storage",
+        "collections",
+        "hashmap",
+        "ValueEntry"
+      ]
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "bound",
+              "type": 1,
+              "typeName": "bool"
+            },
+            {
+              "name": "index",
+              "type": 5,
+              "typeName": "u128"
+            },
+            {
+              "name": "de_norm",
+              "type": 5,
+              "typeName": "u128"
+            },
+            {
+              "name": "balance",
+              "type": 5,
+              "typeName": "u128"
+            }
+          ]
+        }
+      },
+      "path": [
+        "pool",
+        "pool",
+        "Record"
+      ]
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 11,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        11
+      ],
+      "path": [
+        "Option"
+      ]
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 2
+        }
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 5
+        }
+      }
+    },
+    {
+      "def": {
+        "tuple": [
+          5,
+          5
+        ]
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 2,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        2
+      ],
+      "path": [
+        "Option"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 4,
+          "type": 4
+        }
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 4
+        }
+      }
+    }
+  ]
+}

@@ -101,8 +101,8 @@ mod base {
             let weight_ratio = self.math.bdiv(token_weight_out, token_weight_in);
             let diff = self.math.bsub(token_balance_out, token_amount_out);
             let y = self.math.bdiv(token_balance_out, diff);
-            let foo = self.math.bpow(y, weight_ratio);
-            let foo = self.math.bsub(foo, BONE);
+            let mut foo = self.math.bpow(y, weight_ratio);
+            foo = self.math.bsub(foo, BONE);
             let amount_in = self.math.bsub(BONE, swap_fee);
             let token_amount_in = self.math.bdiv(self.math.bmul(token_balance_in, foo), amount_in);
             return token_amount_in;
