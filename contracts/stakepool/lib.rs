@@ -6,6 +6,7 @@ use ink_lang as ink;
 mod stakepool {
     use cusd::Pat;
     use ink_env::call::FromAccountId;
+    use ink_env::debug_println;
     use ink_prelude::vec::Vec;
     use ink_storage::{
         collections::HashMap as StorageMap,
@@ -14,11 +15,12 @@ mod stakepool {
     };
     use ownership::Ownable;
     use primitive_types::U256;
+
     //c_id  abbreviation for instance of  CollateralId
     pub type CollateralId = u32;
     pub type USD = u32;
 
-    pub const PATS: Balance = 10_000_000_000;
+    // pub const PATS: Balance = 10_000_000_000;
     pub const PAT_PRICE_DECIMALS: u32 = 100;
 
     #[ink(event)]
@@ -177,21 +179,32 @@ mod stakepool {
         /// Stake collateral and issue cusd
         #[ink(message, payable)]
         pub fn issue_cusd(&mut self, cratio: u32) -> (CollateralId, Balance) {
-            assert!(cratio >= self.min_c_ratio);
+
+            assert!(cratio >= self.min_c_ratio,"ERR_CRATION");
+            ink_env::debug_println("xxxxx_issue_cusd begin.");
             let caller = self.env().caller();
             let collateral = self.env().transferred_balance();
-            let cusd_decimals =
-                10u128.saturating_pow(self.cusd_token.token_decimals().unwrap() as u32);
-            let cusd = collateral * self.pat_price as u128 * (cusd_decimals / PATS) * 100
-                / (cratio * PAT_PRICE_DECIMALS) as u128;
+            let cusd_decimals = 10u128.saturating_pow(self.cusd_token.token_decimals().unwrap() as u32);
+            let pat_decimals = 10u128.saturating_pow(self.pat_token.token_decimals().unwrap() as u32);
+
+            let message = ink_prelude::format!("cusd_decimals is {:?}, pat_decimals is {:?}, collateral is {:?}", cusd_decimals, pat_decimals, collateral);
+            debug_println(&message);
+
+            let collateral_value =((collateral/pat_decimals) * (self.pat_price as u128)) / (PAT_PRICE_DECIMALS as u128);
+
+            let cusd =  (collateral_value * cusd_decimals  * 100) / (cratio as u128);
+            let message = ink_prelude::format!("collateral_value is {:?}, self.pat_price is {:?}, cusd is {:?}", collateral_value,self.pat_price,  cusd);
+            debug_println(&message);
+
             let cstate = CollateralState {
-                issuer: caller,
+                issuer:  caller,
                 collateral_pat: collateral,
                 issue_cusd: cusd,
                 create_date: self.env().block_timestamp(),
             };
             self.cstate_count += 1;
             self.cstate.insert(self.cstate_count, cstate);
+            debug_println("xxxxx_end");
             self.cusd_token.mint(caller, cusd).unwrap();
             self.env().emit_event(IssueCusd {
                 c_id: self.cstate_count,
@@ -213,11 +226,13 @@ mod stakepool {
             //     / cstate.issue_cusd;
             let cusd_decimals =
                 10u128.saturating_pow(self.cusd_token.token_decimals().unwrap() as u32);
+            let pat_decimals = 10u128.saturating_pow(self.pat_token.token_decimals().unwrap() as u32);
+
             let cratio = (collateral + cstate.collateral_pat as u128)
                 * self.pat_price as u128
                 * 100
                 * cusd_decimals
-                / (cstate.issue_cusd * PATS * PAT_PRICE_DECIMALS as u128);
+                / (cstate.issue_cusd * pat_decimals * PAT_PRICE_DECIMALS as u128);
 
             // assert!(cratio >= self.min_c_ratio.into());
             cstate.collateral_pat += collateral;
@@ -239,9 +254,11 @@ mod stakepool {
             //     (cstate.collateral_pat - collateral) * self.pat_price as u128 * 100 / cstate.issue_cusd;
             let cusd_decimals =
                 10u128.saturating_pow(self.cusd_token.token_decimals().unwrap() as u32);
+            let pat_decimals = 10u128.saturating_pow(self.pat_token.token_decimals().unwrap() as u32);
+
             let cratio =
                 (cstate.collateral_pat - collateral) * self.pat_price as u128 * 100 * cusd_decimals
-                    / (cstate.issue_cusd * PATS * PAT_PRICE_DECIMALS as u128);
+                    / (cstate.issue_cusd * pat_decimals * PAT_PRICE_DECIMALS as u128);
 
             // assert!(cratio >= self.min_c_ratio.into());
             cstate.collateral_pat -= collateral;
@@ -290,17 +307,19 @@ mod stakepool {
             // let cratio = (cstate.collateral_pat * self.pat_price as u128 * 100 / cstate.issue_cusd) as u32;
             let cusd_decimals =
                 10u128.saturating_pow(self.cusd_token.token_decimals().unwrap() as u32);
+            let pat_decimals = 10u128.saturating_pow(self.pat_token.token_decimals().unwrap() as u32);
+
             let cratio = (cstate.collateral_pat * self.pat_price as u128 * 100 * cusd_decimals
-                / (cstate.issue_cusd * PATS * PAT_PRICE_DECIMALS as u128)) as u32;
+                / (cstate.issue_cusd * pat_decimals * PAT_PRICE_DECIMALS as u128)) as u32;
             assert!(cratio <= self.min_liquidation_ratio);
             let owner = cstate.issuer;
             let pat =
-                cusd * PATS * PAT_PRICE_DECIMALS as u128 / (self.pat_price as u128 * cusd_decimals);
+                cusd * pat_decimals * PAT_PRICE_DECIMALS as u128 / (self.pat_price as u128 * cusd_decimals);
             cstate.issue_cusd = cstate.issue_cusd.saturating_sub(cusd);
             // let keeper_reward =
             //     cusd * PATS * self.liquidater_reward_ratio as u128 * PAT_PRICE_DECIMALS as u128
             //         / (100 * self.pat_price as u128 * cusd_decimals);
-            let keeper_reward = cusd * PATS * self.liquidater_reward_ratio as u128
+            let keeper_reward = cusd * pat_decimals * self.liquidater_reward_ratio as u128
                 / (self.pat_price as u128 * cusd_decimals);
             assert!(pat + keeper_reward <= cstate.collateral_pat);
 
