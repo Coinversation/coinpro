@@ -37,6 +37,5 @@ std = [
     "ink_primitives/std",
     "scale/std",
     "scale-info/std",
-    "ink_prelude/std",
 ]
 ink-as-dependency = []

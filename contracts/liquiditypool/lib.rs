@@ -84,17 +84,19 @@ mod factory {
         }
 
         #[ink(message)]
-        pub fn new_pool(&mut self,  ts: u32) -> AccountId {
-            let salt = ts.to_le_bytes();
+        pub fn new_pool(&mut self,  salt: u32,
+                        token_endowment: u128,
+                        pool_endowment: u128) -> AccountId {
+            let salt_bytes = salt.to_le_bytes();
             debug_println("enter ");
             assert_ne!(self.token_code_hash, Hash::from([0; 32]));
             assert_ne!(self.math_address, Default::default());
             debug_println("token code hash and math address valid ");
 
             let token_params = Token::new(self.math_address)
-                .endowment(20000000000)
+                .endowment(token_endowment)
                 .code_hash(self.token_code_hash)
-                .salt_bytes(salt)
+                .salt_bytes(salt_bytes)
                 .params();
 
             debug_println("build token contract params finish");
@@ -107,9 +109,9 @@ mod factory {
             debug_println("instantiate token succeed");
 
             let pool_params = Pool::new(self.math_address, self.base_address, token_address)
-                .endowment(20000000000)
+                .endowment(pool_endowment)
                 .code_hash(self.pool_code_hash)
-                .salt_bytes(salt)
+                .salt_bytes(salt_bytes)
                 .params();
 
             let pool_address = self
@@ -120,14 +122,17 @@ mod factory {
             debug_println("instantiate pool succeed");
 
             let sender = Self::env().caller();
-            self.env().emit_event(LogNewPool {
-                caller: Some(sender),
-                pool: Some(pool_address),
-            });
+            let mut t: Token = FromAccountId::from_account_id(token_address);
+            t.set_controller(pool_address);
 
             let mut p: Pool = FromAccountId::from_account_id(pool_address);
             p.set_controller(sender);
             self.is_pool.insert(pool_address, true);
+
+            self.env().emit_event(LogNewPool {
+                caller: Some(sender),
+                pool: Some(pool_address),
+            });
 
             debug_println("new pool succeed");
             return pool_address

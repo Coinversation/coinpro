@@ -139,17 +139,6 @@ mod pool {
             instance
         }
 
-        fn _logs_(&self) {
-            let caller = Self::env().caller();
-            self.env().emit_event(LogCall {
-                // @todo lipu: fix this field
-                sig: [0x00; 4],
-                caller: Some(caller),
-                // @todo lipu: fix this field
-                data: [0x00; 4].to_vec(),
-            });
-        }
-
         fn _lock_(&mut self) {
             assert!(!self.mutex, "ERR_REENTRY");
             // self.mutex = true;
@@ -175,6 +164,9 @@ mod pool {
         }
 
         pub fn _pull_underlying(&self, erc20: AccountId, from: AccountId, to: AccountId, amount: u128) {
+            let message1 = ink_prelude::format!("_pull_underlying amount is {:?}", amount);
+            ink_env::debug_println(&message1);
+
             let mut erc: PAT = FromAccountId::from_account_id(erc20);
             let fer = erc.transfer_from(from, to, amount).is_ok();
             assert!(fer);
@@ -310,7 +302,6 @@ mod pool {
 
         #[ink(message)]
         pub fn set_swap_fee(&mut self, fee:u128) {
-            self._logs_();
             self._view_lock_();
 
             assert!(!self.finalized, "ERR_IS_FINALIZED");
@@ -323,7 +314,6 @@ mod pool {
 
         #[ink(message)]
         pub fn set_controller(&mut self, manager:AccountId) {
-            self._logs_();
             self._lock_();
             assert!(self.controller == self._get_sender(), "ERR_NOT_CONTROLLER");
             self.controller = manager;
@@ -332,7 +322,6 @@ mod pool {
 
         #[ink(message)]
         pub fn set_public_swap(&mut self, public:bool) {
-            self._logs_();
             self._lock_();
             assert!(!self.finalized, "ERR_IS_FINALIZED");
             assert!(self.controller == self._get_sender(), "ERR_NOT_CONTROLLER");
@@ -342,7 +331,7 @@ mod pool {
 
         #[ink(message)]
         pub fn finalize(&mut self) {
-            self._logs_();
+
             self._lock_();
             let sender = self._get_sender();
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
@@ -357,7 +346,7 @@ mod pool {
 
         #[ink(message)]
         pub fn bind(&mut self, token: AccountId, balance: u128, denorm:u128) {
-            self._logs_();
+
             debug_println("enter bind()");
             assert!(self.controller == self._get_sender(), "ERR_NOT_CONTROLLER");
             assert!(!self._get_record(token).unwrap().bound, "ERR_IS_BOUND");
@@ -392,7 +381,7 @@ mod pool {
         #[ink(message)]
         pub fn rebind(&mut self, token: AccountId, balance: u128, denorm:u128) {
             debug_println("enter rebind()");
-            self._logs_();
+
             self._lock_();
 
             let (sender, this) = self._get_sender_and_this();
@@ -436,7 +425,6 @@ mod pool {
 
         #[ink(message)]
         pub fn unbind(&mut self, token: AccountId) {
-            self._logs_();
             self._lock_();
 
             let sender = self._get_sender();
@@ -467,7 +455,6 @@ mod pool {
         // Absorb any tokens that have been sent to this contract into the pool
         #[ink(message)]
         pub fn gulp(&mut self, token: AccountId) {
-            self._logs_();
             self._lock_();
             assert!(self._get_record(token).unwrap().bound, "ERR_NOT_BOUND");
 
@@ -507,7 +494,6 @@ mod pool {
 
         #[ink(message)]
         pub fn join_pool(&mut self, pool_amount_out: u128, max_amounts_in: Vec<u128>) {
-            self._logs_();
             self._lock_();
             assert!(self.finalized, "ERR_NOT_FINALIZED");
 
@@ -547,7 +533,6 @@ mod pool {
 
         #[ink(message)]
         pub fn exit_pool(&mut self, pool_amount_in: u128, min_amounts_out: Vec<u128>) {
-            self._logs_();
             self._lock_();
             assert!(self.finalized, "ERR_NOT_FINALIZED");
 
@@ -599,12 +584,11 @@ mod pool {
                                     min_amount_out: u128,
                                     max_price: u128) ->(u128, u128) {
             debug_println("enter swap_exact_amount_in");
-            self._logs_();
+
             self._lock_();
             self.require_valid_bound_swap(token_in, token_out);
 
             debug_println("token isvalid");
-            // @todo fix storage
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
@@ -695,14 +679,12 @@ mod pool {
                                      token_out: AccountId,
                                      token_amount_out: u128,
                                      max_price: u128) ->(u128, u128) {
-            self._logs_();
             self._lock_();
             debug_println("enter swap_exact_amount_in");
             self.require_valid_bound_swap(token_in, token_out);
 
             debug_println("token isvalid");
 
-            // @todo fix storage
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
@@ -800,7 +782,6 @@ mod pool {
                                           token_in: AccountId,
                                           token_amount_in: u128,
                                           min_pool_amount_out: u128) -> u128 {
-            self._logs_();
             self._lock_();
             debug_println("enter join_swap_extern_amount_in");
 
@@ -845,7 +826,7 @@ mod pool {
                                          token_in: AccountId,
                                          pool_amount_out: u128,
                                          max_amount_in: u128) -> u128 {
-            self._logs_();
+
             self._lock_();
             debug_println("enter join_swap_pool_amount_out");
             self.require_finalize_bound(token_in);
@@ -889,7 +870,6 @@ mod pool {
                                         token_out: AccountId,
                                         pool_amount_in: u128,
                                         min_amount_out: u128) -> u128 {
-            self._logs_();
             self._lock_();
 
             self.require_finalize_bound(token_out);
@@ -934,7 +914,6 @@ mod pool {
                                            token_out: AccountId,
                                            token_amount_out: u128,
                                            max_pool_amount_in: u128) -> u128 {
-            self._logs_();
             self._lock_();
             self.require_finalize_bound(token_out);
             assert!(token_amount_out <= self.math.bmul(self._get_record(token_out).unwrap().balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");

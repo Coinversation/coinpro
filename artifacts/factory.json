@@ -1,7 +1,7 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xf3e5b175beb0f1891d9044c1e4712de3698f04a081b03785c174c1e6e991e33d",
+    "hash": "0x0244afd1ee628e4d58c61b9e2f674ebd52828c5649d40cdcfa6ef633da389a00",
     "language": "ink! 3.0.0-rc3",
     "compiler": "rustc 1.52.0-nightly"
   },
@@ -72,7 +72,7 @@
               "displayName": [
                 "Option"
               ],
-              "type": 11
+              "type": 12
             }
           },
           {
@@ -83,7 +83,7 @@
               "displayName": [
                 "Option"
               ],
-              "type": 11
+              "type": 12
             }
           }
         ],
@@ -100,7 +100,7 @@
               "displayName": [
                 "Option"
               ],
-              "type": 11
+              "type": 12
             }
           },
           {
@@ -111,7 +111,7 @@
               "displayName": [
                 "Option"
               ],
-              "type": 11
+              "type": 12
             }
           }
         ],
@@ -149,12 +149,30 @@
       {
         "args": [
           {
-            "name": "ts",
+            "name": "salt",
             "type": {
               "displayName": [
                 "u32"
               ],
               "type": 6
+            }
+          },
+          {
+            "name": "token_endowment",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 11
+            }
+          },
+          {
+            "name": "pool_endowment",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 11
             }
           }
         ],
@@ -534,6 +552,11 @@
     {
       "def": {
         "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "primitive": "u128"
       }
     },
     {
