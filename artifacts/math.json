@@ -1,9 +1,9 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0x94ee155155424c88ef2e15c04ec8f63c14bc03f83d3b18bedc35274df42fd16b",
+    "hash": "0x8141fb5a9d2846dd58e48e3e19c130a5900368db2362105627de4b361b7a4842",
     "language": "ink! 3.0.0-rc3",
-    "compiler": "rustc 1.52.0-nightly"
+    "compiler": "rustc 1.53.0-nightly"
   },
   "contract": {
     "name": "math",

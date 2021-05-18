@@ -1,9 +1,9 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0x041d7bca70fc43cfa92d236d73b63ddcf925fa93c42b83d94586448eef6b87a9",
+    "hash": "0x7dcd7bebc8d236e9e1e444366dc90858493ca60d02a7d005eb8fbb614ef3e87c",
     "language": "ink! 3.0.0-rc3",
-    "compiler": "rustc 1.52.0-nightly"
+    "compiler": "rustc 1.53.0-nightly"
   },
   "contract": {
     "name": "cusd",
@@ -17,17 +17,44 @@
       {
         "args": [
           {
-            "name": "init_value",
+            "name": "_initial_supply",
             "type": {
               "displayName": [
-                "bool"
+                "Balance"
               ],
               "type": 1
+            }
+          },
+          {
+            "name": "_name",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "_symbol",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "_decimals",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 4
             }
           }
         ],
         "docs": [
-          "Constructor that initializes the `bool` value to the given `init_value`."
+          "Creates a new Pat (polkadot asset token) contract with the specified initial supply."
         ],
         "name": [
           "new"
@@ -40,347 +67,348 @@
     "messages": [
       {
         "args": [],
-        "docs": [],
+        "docs": [
+          " Returns the token name."
+        ],
         "mutates": false,
         "name": [
-          "build_empty_record"
-        ],
-        "payable": false,
-        "returnType": {
-          "displayName": [
-            "Record"
-          ],
-          "type": 7
-        },
-        "selector": "0x45a09fc9"
-      },
-      {
-        "args": [
-          {
-            "name": "token_id",
-            "type": {
-              "displayName": [
-                "u32"
-              ],
-              "type": 3
-            }
-          }
-        ],
-        "docs": [],
-        "mutates": false,
-        "name": [
-          "get_record"
+          "token_name"
         ],
         "payable": false,
         "returnType": {
           "displayName": [
             "Option"
           ],
-          "type": 9
+          "type": 2
         },
-        "selector": "0x7e6cb4ce"
+        "selector": "0xd3dc9f8c"
       },
       {
         "args": [],
-        "docs": [],
-        "mutates": true,
+        "docs": [
+          " Returns the token symbol."
+        ],
+        "mutates": false,
         "name": [
-          "join_pool"
+          "token_symbol"
         ],
         "payable": false,
-        "returnType": null,
-        "selector": "0xb4e4811a"
+        "returnType": {
+          "displayName": [
+            "Option"
+          ],
+          "type": 2
+        },
+        "selector": "0xe4ab4943"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Returns the token decimals."
+        ],
+        "mutates": false,
+        "name": [
+          "token_decimals"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Option"
+          ],
+          "type": 4
+        },
+        "selector": "0xc4b508e2"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Returns the total token supply."
+        ],
+        "mutates": false,
+        "name": [
+          "total_supply"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Balance"
+          ],
+          "type": 1
+        },
+        "selector": "0x557c8bd0"
+      },
+      {
+        "args": [
+          {
+            "name": "_owner",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          }
+        ],
+        "docs": [
+          " Returns the account balance for the specified `owner`."
+        ],
+        "mutates": false,
+        "name": [
+          "balance_of"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Balance"
+          ],
+          "type": 1
+        },
+        "selector": "0xb13e6c24"
+      },
+      {
+        "args": [
+          {
+            "name": "_to",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_value",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Transfers `value` amount of tokens from the caller's account to account `to`."
+        ],
+        "mutates": true,
+        "name": [
+          "transfer"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Result"
+          ],
+          "type": 8
+        },
+        "selector": "0xa6b726c7"
+      },
+      {
+        "args": [
+          {
+            "name": "_owner",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_spender",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          }
+        ],
+        "docs": [
+          " Returns the amount which `spender` is still allowed to withdraw from `owner`."
+        ],
+        "mutates": false,
+        "name": [
+          "allowance"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Balance"
+          ],
+          "type": 1
+        },
+        "selector": "0x984f2ea5"
+      },
+      {
+        "args": [
+          {
+            "name": "_from",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_to",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_value",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Transfers `value` tokens on the behalf of `from` to the account `to`."
+        ],
+        "mutates": true,
+        "name": [
+          "transfer_from"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Result"
+          ],
+          "type": 8
+        },
+        "selector": "0xeb7943df"
+      },
+      {
+        "args": [
+          {
+            "name": "_spender",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_value",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Allows `spender` to withdraw from the caller's account multiple times, up to",
+          " the `value` amount."
+        ],
+        "mutates": true,
+        "name": [
+          "approve"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Result"
+          ],
+          "type": 8
+        },
+        "selector": "0x702770d4"
+      },
+      {
+        "args": [
+          {
+            "name": "_user",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_amount",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Issue a new amount of tokens",
+          " these tokens are deposited into the owner address"
+        ],
+        "mutates": true,
+        "name": [
+          "mint"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Result"
+          ],
+          "type": 8
+        },
+        "selector": "0xcfdd9aa2"
+      },
+      {
+        "args": [
+          {
+            "name": "_user",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 6
+            }
+          },
+          {
+            "name": "_amount",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "docs": [
+          " Redeem tokens.",
+          " These tokens are withdrawn from the owner address",
+          " if the balance must be enough to cover the redeem",
+          " or the call will fail."
+        ],
+        "mutates": true,
+        "name": [
+          "burn"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "Result"
+          ],
+          "type": 8
+        },
+        "selector": "0xb1efc17b"
       }
     ]
   },
   "storage": {
     "struct": {
-      "fields": [
-        {
-          "layout": {
-            "cell": {
-              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
-              "ty": 1
-            }
-          },
-          "name": "value"
-        },
-        {
-          "layout": {
-            "struct": {
-              "fields": [
-                {
-                  "layout": {
-                    "struct": {
-                      "fields": [
-                        {
-                          "layout": {
-                            "cell": {
-                              "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
-                              "ty": 2
-                            }
-                          },
-                          "name": "header"
-                        },
-                        {
-                          "layout": {
-                            "struct": {
-                              "fields": [
-                                {
-                                  "layout": {
-                                    "cell": {
-                                      "key": "0x0200000000000000000000000000000000000000000000000000000000000000",
-                                      "ty": 3
-                                    }
-                                  },
-                                  "name": "len"
-                                },
-                                {
-                                  "layout": {
-                                    "array": {
-                                      "cellsPerElem": 1,
-                                      "layout": {
-                                        "cell": {
-                                          "key": "0x0200000001000000000000000000000000000000000000000000000000000000",
-                                          "ty": 4
-                                        }
-                                      },
-                                      "len": 4294967295,
-                                      "offset": "0x0300000000000000000000000000000000000000000000000000000000000000"
-                                    }
-                                  },
-                                  "name": "elems"
-                                }
-                              ]
-                            }
-                          },
-                          "name": "entries"
-                        }
-                      ]
-                    }
-                  },
-                  "name": "keys"
-                },
-                {
-                  "layout": {
-                    "hash": {
-                      "layout": {
-                        "cell": {
-                          "key": "0x0300000001000000000000000000000000000000000000000000000000000000",
-                          "ty": 6
-                        }
-                      },
-                      "offset": "0x0200000001000000000000000000000000000000000000000000000000000000",
-                      "strategy": {
-                        "hasher": "Blake2x256",
-                        "postfix": "",
-                        "prefix": "0x696e6b20686173686d6170"
-                      }
-                    }
-                  },
-                  "name": "values"
-                }
-              ]
-            }
-          },
-          "name": "records"
-        },
-        {
-          "layout": {
-            "struct": {
-              "fields": [
-                {
-                  "layout": {
-                    "cell": {
-                      "key": "0x0300000001000000000000000000000000000000000000000000000000000000",
-                      "ty": 3
-                    }
-                  },
-                  "name": "len"
-                },
-                {
-                  "layout": {
-                    "array": {
-                      "cellsPerElem": 1,
-                      "layout": {
-                        "cell": {
-                          "key": "0x0300000002000000000000000000000000000000000000000000000000000000",
-                          "ty": 3
-                        }
-                      },
-                      "len": 4294967295,
-                      "offset": "0x0400000001000000000000000000000000000000000000000000000000000000"
-                    }
-                  },
-                  "name": "elems"
-                }
-              ]
-            }
-          },
-          "name": "tokens"
-        }
-      ]
+      "fields": []
     }
   },
   "types": [
-    {
-      "def": {
-        "primitive": "bool"
-      }
-    },
-    {
-      "def": {
-        "composite": {
-          "fields": [
-            {
-              "name": "last_vacant",
-              "type": 3,
-              "typeName": "Index"
-            },
-            {
-              "name": "len",
-              "type": 3,
-              "typeName": "u32"
-            },
-            {
-              "name": "len_entries",
-              "type": 3,
-              "typeName": "u32"
-            }
-          ]
-        }
-      },
-      "path": [
-        "ink_storage",
-        "collections",
-        "stash",
-        "Header"
-      ]
-    },
-    {
-      "def": {
-        "primitive": "u32"
-      }
-    },
-    {
-      "def": {
-        "variant": {
-          "variants": [
-            {
-              "fields": [
-                {
-                  "type": 5,
-                  "typeName": "VacantEntry"
-                }
-              ],
-              "name": "Vacant"
-            },
-            {
-              "fields": [
-                {
-                  "type": 3,
-                  "typeName": "T"
-                }
-              ],
-              "name": "Occupied"
-            }
-          ]
-        }
-      },
-      "params": [
-        3
-      ],
-      "path": [
-        "ink_storage",
-        "collections",
-        "stash",
-        "Entry"
-      ]
-    },
-    {
-      "def": {
-        "composite": {
-          "fields": [
-            {
-              "name": "next",
-              "type": 3,
-              "typeName": "Index"
-            },
-            {
-              "name": "prev",
-              "type": 3,
-              "typeName": "Index"
-            }
-          ]
-        }
-      },
-      "path": [
-        "ink_storage",
-        "collections",
-        "stash",
-        "VacantEntry"
-      ]
-    },
-    {
-      "def": {
-        "composite": {
-          "fields": [
-            {
-              "name": "value",
-              "type": 7,
-              "typeName": "V"
-            },
-            {
-              "name": "key_index",
-              "type": 3,
-              "typeName": "KeyIndex"
-            }
-          ]
-        }
-      },
-      "params": [
-        7
-      ],
-      "path": [
-        "ink_storage",
-        "collections",
-        "hashmap",
-        "ValueEntry"
-      ]
-    },
-    {
-      "def": {
-        "composite": {
-          "fields": [
-            {
-              "name": "bound",
-              "type": 1,
-              "typeName": "bool"
-            },
-            {
-              "name": "index",
-              "type": 8,
-              "typeName": "u128"
-            },
-            {
-              "name": "de_norm",
-              "type": 8,
-              "typeName": "u128"
-            },
-            {
-              "name": "balance",
-              "type": 8,
-              "typeName": "u128"
-            }
-          ]
-        }
-      },
-      "path": [
-        "cusd",
-        "cusd",
-        "Record"
-      ]
-    },
     {
       "def": {
         "primitive": "u128"
@@ -396,7 +424,7 @@
             {
               "fields": [
                 {
-                  "type": 7,
+                  "type": 3,
                   "typeName": "T"
                 }
               ],
@@ -406,10 +434,134 @@
         }
       },
       "params": [
-        7
+        3
       ],
       "path": [
         "Option"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "str"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 5,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        5
+      ],
+      "path": [
+        "Option"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 7,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 5
+        }
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "fields": [
+                {
+                  "type": 9,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Ok"
+            },
+            {
+              "fields": [
+                {
+                  "type": 10,
+                  "typeName": "E"
+                }
+              ],
+              "name": "Err"
+            }
+          ]
+        }
+      },
+      "params": [
+        9,
+        10
+      ],
+      "path": [
+        "Result"
+      ]
+    },
+    {
+      "def": {
+        "tuple": []
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "discriminant": 0,
+              "name": "InsufficientBalance"
+            },
+            {
+              "discriminant": 1,
+              "name": "InsufficientSupply"
+            },
+            {
+              "discriminant": 2,
+              "name": "InsufficientAllowance"
+            }
+          ]
+        }
+      },
+      "path": [
+        "cusd",
+        "pat",
+        "Error"
       ]
     }
   ]

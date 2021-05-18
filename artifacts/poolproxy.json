@@ -1,9 +1,9 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0x3c5a8bd8c03695e6d22cfc99d800f9ced2a89f13bf2203dfeace489111599b52",
+    "hash": "0x2815cda919e2e5f20010c952631f69cafc60ef14856c470c88f8e83cfa0a805b",
     "language": "ink! 3.0.0-rc3",
-    "compiler": "rustc 1.52.0-nightly"
+    "compiler": "rustc 1.53.0-nightly"
   },
   "contract": {
     "name": "poolproxy",
@@ -124,7 +124,7 @@
             }
           },
           {
-            "name": "token_amount_in",
+            "name": "max_amount_in",
             "type": {
               "displayName": [
                 "u128"
@@ -142,7 +142,7 @@
             }
           },
           {
-            "name": "min_amount_out",
+            "name": "token_amount_out",
             "type": {
               "displayName": [
                 "u128"

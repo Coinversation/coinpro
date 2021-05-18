@@ -348,6 +348,10 @@ mod stakepool {
             let mut issuers = Vec::new();
             let total_collateral: Balance = self.env().balance();
             let total_issue_cusd: Balance = self.cusd_token.total_supply();
+
+            let message = ink_prelude::format!("total_collateral is {:?}, total_issue_cusd is {:?}, ", total_collateral, total_issue_cusd);
+            debug_println(&message);
+
             for (_k, v) in self.cstate.iter() {
                 if !issuers.contains(&v.issuer) {
                     issuers.push(v.issuer);
