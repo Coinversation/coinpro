@@ -32,9 +32,9 @@ mod pool {
         #[ink(message)]
         pub fn swap_exact_amount_out(&self,
                                      token_in: AccountId,
-                                     token_amount_in: u128,
+                                     max_amount_in: u128,
                                      token_out: AccountId,
-                                     min_amount_out: u128,
+                                     token_amount_out: u128,
                                      max_price: u128,
         ) -> u128 {unimplemented!()}
         /// Constructor that initializes the `bool` value to `false`.

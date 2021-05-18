@@ -1,0 +1,511 @@
+{
+  "metadataVersion": "0.1.0",
+  "source": {
+    "hash": "0xe2538c4df915c979d12bfa42c737d6d44655e5b56fb02b15354528753ad8d115",
+    "language": "ink! 3.0.0-rc3",
+    "compiler": "rustc 1.53.0-nightly"
+  },
+  "contract": {
+    "name": "exchangeproxy",
+    "version": "0.1.0",
+    "authors": [
+      "[your_name] <[your_email]>"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "name": "cdot_contract",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [
+          "Constructor that initializes the `bool` value to `false`."
+        ],
+        "name": [
+          "new"
+        ],
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "name": "caller",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 8
+            }
+          }
+        ],
+        "docs": [],
+        "name": "LOGCALL"
+      }
+    ],
+    "messages": [
+      {
+        "args": [
+          {
+            "name": "swaps",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "total_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          },
+          {
+            "name": "min_total_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "batch_swap_exact_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 7
+        },
+        "selector": "0xe4f26dca"
+      },
+      {
+        "args": [
+          {
+            "name": "swaps",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "max_total_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "batch_swap_exact_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 7
+        },
+        "selector": "0xd411827c"
+      },
+      {
+        "args": [
+          {
+            "name": "swaps",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "min_total_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "batch_dot_in_swap_exact_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 7
+        },
+        "selector": "0x86e28da8"
+      },
+      {
+        "args": [
+          {
+            "name": "swaps",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "total_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          },
+          {
+            "name": "min_total_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "batch_dot_out_swap_exact_in"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 7
+        },
+        "selector": "0xd4b903b8"
+      },
+      {
+        "args": [
+          {
+            "name": "swaps",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_out",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "batch_dot_in_swap_exact_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 7
+        },
+        "selector": "0xaec7050c"
+      },
+      {
+        "args": [
+          {
+            "name": "swaps",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "name": "token_in",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 2
+            }
+          },
+          {
+            "name": "max_total_amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 7
+            }
+          }
+        ],
+        "docs": [],
+        "mutates": true,
+        "name": [
+          "batch_dot_out_swap_exact_out"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "u128"
+          ],
+          "type": 7
+        },
+        "selector": "0x5ad86860"
+      },
+      {
+        "args": [],
+        "docs": [
+          " Simply returns the current value of our `bool`."
+        ],
+        "mutates": false,
+        "name": [
+          "get"
+        ],
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "bool"
+          ],
+          "type": 1
+        },
+        "selector": "0x2f865bd9"
+      }
+    ]
+  },
+  "storage": {
+    "struct": {
+      "fields": [
+        {
+          "layout": {
+            "cell": {
+              "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "ty": 1
+            }
+          },
+          "name": "_mutex"
+        },
+        {
+          "layout": {
+            "struct": {
+              "fields": [
+                {
+                  "layout": {
+                    "cell": {
+                      "key": "0x0100000000000000000000000000000000000000000000000000000000000000",
+                      "ty": 2
+                    }
+                  },
+                  "name": "account_id"
+                }
+              ]
+            }
+          },
+          "name": "cdot"
+        }
+      ]
+    }
+  },
+  "types": [
+    {
+      "def": {
+        "primitive": "bool"
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "type": 3,
+              "typeName": "[u8; 32]"
+            }
+          ]
+        }
+      },
+      "path": [
+        "ink_env",
+        "types",
+        "AccountId"
+      ]
+    },
+    {
+      "def": {
+        "array": {
+          "len": 32,
+          "type": 4
+        }
+      }
+    },
+    {
+      "def": {
+        "primitive": "u8"
+      }
+    },
+    {
+      "def": {
+        "sequence": {
+          "type": 6
+        }
+      }
+    },
+    {
+      "def": {
+        "composite": {
+          "fields": [
+            {
+              "name": "pool",
+              "type": 2,
+              "typeName": "AccountId"
+            },
+            {
+              "name": "token_in_param",
+              "type": 7,
+              "typeName": "u128"
+            },
+            {
+              "name": "token_out_param",
+              "type": 7,
+              "typeName": "u128"
+            },
+            {
+              "name": "max_price",
+              "type": 7,
+              "typeName": "u128"
+            }
+          ]
+        }
+      },
+      "path": [
+        "exchangeproxy",
+        "exchangeproxy",
+        "Swap"
+      ]
+    },
+    {
+      "def": {
+        "primitive": "u128"
+      }
+    },
+    {
+      "def": {
+        "variant": {
+          "variants": [
+            {
+              "name": "None"
+            },
+            {
+              "fields": [
+                {
+                  "type": 2,
+                  "typeName": "T"
+                }
+              ],
+              "name": "Some"
+            }
+          ]
+        }
+      },
+      "params": [
+        2
+      ],
+      "path": [
+        "Option"
+      ]
+    }
+  ]
+}
