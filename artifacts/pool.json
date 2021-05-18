@@ -1,7 +1,7 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xef0cf194560c782ef1168bde8243d69b146d6da11399fcc8d0813c7ae393de5c",
+    "hash": "0x366bf7ea3a2c7d565ad266176fcc5541ad088b1a59e33595e9f99e04e435717a",
     "language": "ink! 3.0.0-rc3",
     "compiler": "rustc 1.52.0-nightly"
   },
@@ -766,7 +766,7 @@
           }
         ],
         "docs": [],
-        "mutates": true,
+        "mutates": false,
         "name": [
           "get_spot_price"
         ],
@@ -801,7 +801,7 @@
           }
         ],
         "docs": [],
-        "mutates": true,
+        "mutates": false,
         "name": [
           "get_spot_price_sans_fee"
         ],

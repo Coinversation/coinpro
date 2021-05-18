@@ -471,25 +471,45 @@ mod pool {
         }
 
         #[ink(message)]
-        pub fn get_spot_price(&mut self, token_in: AccountId, token_out: AccountId) -> u128 {
+        pub fn get_spot_price(&self, token_in: AccountId, token_out: AccountId) -> u128 {
             self._view_lock_();
             self.require_valid_bound(token_in, token_out);
 
-            let in_record = &self._get_record(token_in).unwrap();
-            let out_record = &self._get_record(token_out).unwrap();
-            return self.base.calc_spot_price(in_record.balance, in_record.de_norm,
-                                             out_record.balance, out_record.de_norm,
-                                             self.swap_fee);
+            let in_record_balance = self._get_record(token_in).unwrap().balance;
+            let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
+
+            let out_record_balance = self._get_record(token_out).unwrap().balance;
+            let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
+
+            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            ink_env::debug_println(&message);
+
+            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            ink_env::debug_println(&message1);
+
+            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            ink_env::debug_println(&message2);
+
+            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            ink_env::debug_println(&message3);
+
+            return self.base.calc_spot_price(in_record_balance, in_record_de_norm,
+                                             out_record_balance, out_record_de_norm, self.swap_fee);
         }
 
         #[ink(message)]
-        pub fn get_spot_price_sans_fee(&mut self, token_in: AccountId, token_out: AccountId) -> u128 {
+        pub fn get_spot_price_sans_fee(&self, token_in: AccountId, token_out: AccountId) -> u128 {
             self._view_lock_();
             self.require_valid_bound(token_in, token_out);
-            let in_record = &self._get_record(token_in).unwrap();
-            let out_record = &self._get_record(token_out).unwrap();
-            return self.base.calc_spot_price(in_record.balance, in_record.de_norm,
-                                             out_record.balance, out_record.de_norm, 0);
+
+            let in_record_balance = self._get_record(token_in).unwrap().balance;
+            let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
+
+            let out_record_balance = self._get_record(token_out).unwrap().balance;
+            let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
+
+            return self.base.calc_spot_price(in_record_balance, in_record_de_norm,
+                                             out_record_balance, out_record_de_norm, 0);
         }
 
         #[ink(message)]
@@ -644,7 +664,7 @@ mod pool {
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
             debug_println("calc_spot_price finish1");
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
-            debug_println("calc_spot_price finish1");
+            debug_println("calc_spot_price finish2");
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
             debug_println("calc_spot_price finish3");
 
@@ -680,7 +700,7 @@ mod pool {
                                      token_amount_out: u128,
                                      max_price: u128) ->(u128, u128) {
             self._lock_();
-            debug_println("enter swap_exact_amount_in");
+            debug_println("enter swap_exact_amount_out");
             self.require_valid_bound_swap(token_in, token_out);
 
             debug_println("token isvalid");
@@ -746,6 +766,15 @@ mod pool {
 
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
             debug_println("calc_spot_price finish3");
+
+            let message1 = ink_prelude::format!("spot_price_before {:?}", spot_price_before);
+            ink_env::debug_println(&message1);
+
+            let message2 = ink_prelude::format!("token_amount_in {:?}", token_amount_in);
+            ink_env::debug_println(&message2);
+
+            let message3 = ink_prelude::format!("token_amount_out {:?}", token_amount_out);
+            ink_env::debug_println(&message3);
 
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
             debug_println("calc_spot_price finish4");
