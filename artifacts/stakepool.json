@@ -1,9 +1,9 @@
 {
   "metadataVersion": "0.1.0",
   "source": {
-    "hash": "0xbf79921b0834e3bab3c49e13b8ef289b2bd707a1ef3635442212025a39f03513",
+    "hash": "0x79a4c6396f65245dbe54030052f0880ba65629257543598ec1445fe89216c553",
     "language": "ink! 3.0.0-rc3",
-    "compiler": "rustc 1.52.0-nightly"
+    "compiler": "rustc 1.53.0-nightly"
   },
   "contract": {
     "name": "stakepool",
