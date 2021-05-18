@@ -5,6 +5,7 @@ mod exchangeproxy {
     use cdot::PAT;
     use poolproxy::PoolInterface;
     use ink_env::call::FromAccountId;
+    use ink_env::debug_println;
     use ink_lang::ToAccountId;
     use ink_prelude::vec::Vec;
     use ink_storage::{
@@ -72,14 +73,28 @@ mod exchangeproxy {
             self._locks_();
             let mut ti: PAT = FromAccountId::from_account_id(token_in);
             let mut to: PAT = FromAccountId::from_account_id(token_out);
+
+            let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
+                                               token_in, token_out, total_amount_in,swaps.len());
+            debug_println(&message);
             let mut total_amount_out: u128 = 0;
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
+            let message = ink_prelude::format!("swaps_len is {:?}, caller is {:?}",
+                                               swaps.len(), self.env().caller());
+            debug_println(&message);
             assert!(swaps.len() > 0, "swaps is empty");
+            ink_env::debug_println("batch_swap_exact_in 1. =============");
+
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
+                ink_env::debug_println("batch_swap_exact_in 2. =============");
+
                 if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
                     ti.approve(x.pool, u128::MAX);
                 }
+
+                ink_env::debug_println("swap_exact_amount_in begin. =============");
+
                 let token_amount_out = pool.swap_exact_amount_in(
                     token_in,
                     x.token_in_param,
@@ -88,10 +103,17 @@ mod exchangeproxy {
                     x.max_price,
                 );
                 total_amount_out = self.add(token_amount_out, total_amount_out);
+                let message = ink_prelude::format!("token_amount_out is {:?}, total_amount_out is {:?}",
+                                                   token_amount_out, total_amount_out);
+                debug_println(&message);
             }
             assert!(total_amount_out>=min_total_amount_out, "ERR_LIMIT_OUT");
             assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
+            ink_env::debug_println("to.transfer end. =============");
+
             assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
+            ink_env::debug_println("ti.transfer end. =============");
+
             self._unlocks_();
             total_amount_out
         }
@@ -110,6 +132,10 @@ mod exchangeproxy {
             let mut total_amount_in: u128 = 0;
             let mut ti: PAT = FromAccountId::from_account_id(token_in);
             let mut to: PAT = FromAccountId::from_account_id(token_out);
+
+            let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
+                                               token_in, token_out, total_amount_in,swaps.len());
+            debug_println(&message);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
             assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
@@ -117,7 +143,9 @@ mod exchangeproxy {
                 if ti.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
                     ti.approve(x.pool, u128::MAX);
                 }
-                let token_amount_in = pool.swap_exact_amount_in(
+                ink_env::debug_println("swap_exact_amount_out begin. =============");
+
+                let token_amount_in = pool.swap_exact_amount_out(
                     token_in,
                     x.token_in_param,
                     token_out,
@@ -128,7 +156,11 @@ mod exchangeproxy {
             }
             assert!(total_amount_in<=max_total_amount_in,"ERR_LIMIT_IN");
             assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
+            ink_env::debug_println("to.transfer end. =============");
+
             assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
+            ink_env::debug_println("ti.transfer end. =============");
+
             self._unlocks_();
             total_amount_in
         }
@@ -253,6 +285,7 @@ mod exchangeproxy {
             token_in: AccountId,
             max_total_amount_in: u128,
         ) -> u128 {
+
             self._logs_();
             self._locks_();
             let mut total_amount_in: u128 = 0;
@@ -310,7 +343,7 @@ mod exchangeproxy {
         }
 
         fn _locks_(&mut self) {
-            assert!(self._mutex);
+            assert!(!self._mutex, "ERR_REENTRY");
             self._mutex = true;
         }
 
