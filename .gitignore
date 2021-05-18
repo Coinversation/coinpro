@@ -21,6 +21,3 @@ node_modules
 .idea
 
 .gitconfig
-
-contracts/testtoken/erc20issue
-scripts/erc20issue.deploy.ts
