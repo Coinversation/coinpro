@@ -173,9 +173,20 @@ mod pool {
         }
 
         pub fn _push_underlying(&self, erc20: AccountId, to: AccountId, amount: u128) {
+            let message = ink_prelude::format!("before _push_underlying amount is {:?}", amount);
+            ink_env::debug_println(&message);
+
             let mut erc: PAT = FromAccountId::from_account_id(erc20);
             let fer = erc.transfer(to, amount).is_ok();
             assert!(fer);
+
+            let b = erc.balance_of(to);
+            let message1 = ink_prelude::format!("after _push_underlying to amount is {:?}", b);
+            ink_env::debug_println(&message1);
+
+            let b = erc.balance_of(to);
+            let message1 = ink_prelude::format!("_push_underlying to account id is {:?}", to);
+            ink_env::debug_println(&message1);
         }
 
         fn _pull_pool_share(&mut self, from: AccountId, amount: u128) {
