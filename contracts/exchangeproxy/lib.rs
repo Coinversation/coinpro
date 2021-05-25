@@ -71,24 +71,22 @@ mod exchangeproxy {
         ) -> u128 {
             self._logs_();
             self._locks_();
+            let caller = self.env().caller();
+            let exchange_account = self.env().account_id();
             let mut ti: PAT = FromAccountId::from_account_id(token_in);
             let mut to: PAT = FromAccountId::from_account_id(token_out);
 
-            let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
-                                               token_in, token_out, total_amount_in,swaps.len());
-            debug_println(&message);
             let mut total_amount_out: u128 = 0;
-            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
-            let message = ink_prelude::format!("swaps_len is {:?}, caller is {:?}",
-                                               swaps.len(), self.env().caller());
+            let message = ink_prelude::format!("1 balance_of this is {:?},this account is {:?}", ti.balance_of(exchange_account),exchange_account);
+           debug_println(&message);
+            assert!(ti.transfer_from(caller, exchange_account, total_amount_in).is_ok());
+            let message = ink_prelude::format!("swaps_len is {:?}, balance_of this 2 is {:?}", swaps.len(), ti.balance_of(exchange_account));
             debug_println(&message);
             assert!(swaps.len() > 0, "swaps is empty");
             ink_env::debug_println("batch_swap_exact_in 1. =============");
 
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
-                ink_env::debug_println("batch_swap_exact_in 2. =============");
-
                 if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
                     ti.approve(x.pool, u128::MAX);
                 }
@@ -103,16 +101,25 @@ mod exchangeproxy {
                     x.max_price,
                 );
                 total_amount_out = self.add(token_amount_out, total_amount_out);
-                let message = ink_prelude::format!("token_amount_out is {:?}, total_amount_out is {:?}",
-                                                   token_amount_out, total_amount_out);
+
+                let message = ink_prelude::format!("token_amount_out is {:?}, total_amount_out is {:?}", token_amount_out, total_amount_out);
                 debug_println(&message);
             }
+            let ti_balance:Balance = ti.balance_of(exchange_account);
+            let to_balance:Balance = to.balance_of(exchange_account);
             assert!(total_amount_out>=min_total_amount_out, "ERR_LIMIT_OUT");
-            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("to.transfer end. =============");
+            assert!(to.transfer(caller,to_balance).is_ok(), "ERR_TRANSFER_FAILED");
 
-            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("ti.transfer end. =============");
+            let message = ink_prelude::format!("to.balance_of is {:?}, total_amount_out is {:?}", to.balance_of(exchange_account), total_amount_out);
+            debug_println(&message);
+
+            let message = ink_prelude::format!("ti.balance_of before is {:?}", ti_balance);
+            debug_println(&message);
+
+            assert!(ti.transfer(caller, ti_balance).is_ok(), "ERR_TRANSFER_FAILED");
+
+            let message = ink_prelude::format!("ti.balance_of after is {:?}, total_amount_in is {:?}", ti.balance_of(exchange_account), total_amount_in);
+            debug_println(&message);
 
             self._unlocks_();
             total_amount_out
@@ -133,10 +140,12 @@ mod exchangeproxy {
             let mut ti: PAT = FromAccountId::from_account_id(token_in);
             let mut to: PAT = FromAccountId::from_account_id(token_out);
 
-            let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
-                                               token_in, token_out, total_amount_in,swaps.len());
+            let message = ink_prelude::format!("1 balance_of this is {:?},this account is {:?}", ti.balance_of(self.env().account_id()),self.env().account_id());
             debug_println(&message);
             assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
+
+            let message = ink_prelude::format!("2 balance_of this is {:?},swaps_len is {:?}", ti.balance_of(self.env().account_id()),swaps.len());
+            debug_println(&message);
             assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
@@ -153,14 +162,19 @@ mod exchangeproxy {
                     x.max_price,
                 );
                 total_amount_in = self.add(token_amount_in, total_amount_in);
+
+                let message = ink_prelude::format!("token_amount_in is {:?}, total_amount_in is {:?}", token_amount_in, total_amount_in);
+                debug_println(&message);
             }
             assert!(total_amount_in<=max_total_amount_in,"ERR_LIMIT_IN");
             assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("to.transfer end. =============");
-
+            let message = ink_prelude::format!("to.balance_of is {:?}, total_amount_in is {:?}", to.balance_of(self.env().account_id()), total_amount_in);
+            debug_println(&message);
+            let message = ink_prelude::format!("ti.balance_of is {:?}", ti.balance_of(self.env().account_id()));
+            debug_println(&message);
             assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("ti.transfer end. =============");
-
+            let message = ink_prelude::format!("ti.balance_of is {:?}, total_amount_in is {:?}", ti.balance_of(self.env().account_id()), total_amount_in);
+            debug_println(&message);
             self._unlocks_();
             total_amount_in
         }
