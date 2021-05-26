@@ -40,16 +40,23 @@ mod action {
                       swap_fee: u128,
                       finalize: bool) -> AccountId {
             let sender = Self::env().caller();
+
+            debug_println("enter create");
+
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
 
             assert!(tokens.len() == balances.len(), "ERR_LENGTH_MISMATCH");
             assert!(tokens.len() == weights.len(), "ERR_LENGTH_MISMATCH");
 
+            debug_println("tokens valid");
+
             let mut factory: Factory = FromAccountId::from_account_id(factory_address);
             let pool_address = factory.new_pool(salt, token_endowment, pool_endowment);
+            debug_println("new pool finish");
 
             let mut pool: Pool = FromAccountId::from_account_id(pool_address);
             pool.set_swap_fee(swap_fee);
+            debug_println("set_swap_fee finish");
 
             let this = self.env().account_id();
             let sender = Self::env().caller();
@@ -60,13 +67,17 @@ mod action {
                 assert!(token.transfer_from(sender, this, balances[i]).is_ok(), "ERR_TRANSFER_FAILED");
                 self._safe_approve(tokens[i], pool_address, balances[i]);
                 pool.bind(tokens[i], balances[i], weights[i]);
-
+                debug_println("bind finish!");
                 i += 1;
             }
+
+            debug_println("all binds finish!");
 
             if finalize {
                 pool.finalize();
                 assert!(pool.transfer(sender, pool.balance_of(this)), "ERR_TRANSFER_FAILED");
+
+                debug_println("finalize finish!");
             } else {
                 pool.set_public_swap(true);
             }
@@ -79,12 +90,16 @@ mod action {
                          pool_address: AccountId,
                          pool_amount_out: u128,
                          max_amounts_in: Vec<u128>)  {
+            debug_println("enter");
             let sender = Self::env().caller();
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
 
+            debug_println("caller valid");
             let pool: Pool = FromAccountId::from_account_id(pool_address);
             let tokens = pool.get_final_tokens();
+            debug_println("get_final_tokens finish");
             self._join(pool_address, tokens, pool_amount_out, max_amounts_in);
+            debug_println("_join finish");
         }
 
         #[ink(message)]
@@ -93,19 +108,26 @@ mod action {
                                           token_address: AccountId,
                                           token_amount_in: u128,
                                           min_pool_amount_out: u128)  {
+            debug_println("enter");
             let sender = Self::env().caller();
             let this = self.env().account_id();
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
 
+            debug_println("params valid");
             let mut token: PAT = FromAccountId::from_account_id(token_address);
             assert!(token.transfer_from(sender, this, token_amount_in).is_ok(), "ERR_TRANSFER_FAILED");
 
+            debug_println("transfer_from finish");
+
             self._safe_approve(token_address, pool_address, token_amount_in);
+
+            debug_println("_safe_approve finish");
 
             let mut pool: Pool = FromAccountId::from_account_id(pool_address);
             let pool_amount_out = pool.join_swap_extern_amount_in(token_address, token_amount_in, min_pool_amount_out);
 
             assert!(pool.transfer(sender, pool_amount_out), "ERR_TRANSFER_FAILED");
+            debug_println("pool.transfer finish");
         }
 
         #[ink(message)]
@@ -140,11 +162,14 @@ mod action {
                          tokens: Vec<AccountId>,
                          balances: Vec<u128>,
                          denorms: Vec<u128>) {
+            debug_println("enter");
             let sender = Self::env().caller();
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
 
             assert!(tokens.len() == balances.len(), "ERR_LENGTH_MISMATCH");
             assert!(tokens.len() == denorms.len(), "ERR_LENGTH_MISMATCH");
+
+            debug_println("params valid");
 
             let mut pool: Pool = FromAccountId::from_account_id(pool_address);
 
@@ -164,14 +189,19 @@ mod action {
                     } else {
                         pool.unbind(tokens[i]);
                     }
+
+                    debug_println("pool.is_bound");
                 } else {
                     assert!(token.transfer_from(sender, this, balances[i]).is_ok(), "ERR_TRANSFER_FAILED");
                     self._safe_approve(tokens[i], pool_address, balances[i]);
                     pool.bind(tokens[i], balances[i], denorms[i]);
+
+                    debug_println("pool.bind");
                 }
 
                 if token.balance_of(this) > 0 {
                     assert!(token.transfer(sender, token.balance_of(this)).is_ok(), "ERR_TRANSFER_FAILED");
+                    debug_println("token.transfer finish");
                 }
 
                 i += 1;
@@ -182,15 +212,20 @@ mod action {
         pub fn finalize(&self, pool_address: AccountId) {
             let sender = Self::env().caller();
             assert!(self.controller == sender, "ERR_NOT_CONTROLLER");
+            debug_println("enter");
 
             let mut pool: Pool = FromAccountId::from_account_id(pool_address);
             let this = self.env().account_id();
 
             pool.finalize();
+
+            debug_println("pool.finalize finish");
             assert!(pool.transfer(sender, pool.balance_of(this)), "ERR_TRANSFER_FAILED");
+            debug_println("pool.transfer finish");
         }
 
         fn _safe_approve(&self, token_address: AccountId, spender: AccountId, amount: u128) {
+            debug_println("enter");
             let mut token: PAT = FromAccountId::from_account_id(token_address);
             let this = self.env().account_id();
 
@@ -198,10 +233,13 @@ mod action {
                 token.approve(spender, 0);
             }
             token.approve(spender, amount);
+            debug_println("approve finish");
         }
 
         fn _join(&self, pool_address: AccountId, tokens: Vec<AccountId>, pool_amount_out: u128, max_amounts_in: Vec<u128>) {
+            debug_println("enter");
             assert!(max_amounts_in.len() == tokens.len(), "ERR_LENGTH_MISMATCH");
+
             let mut pool: Pool = FromAccountId::from_account_id(pool_address);
 
             let this = self.env().account_id();
@@ -213,9 +251,12 @@ mod action {
                 assert!(token.transfer_from(sender, this, max_amounts_in[i]).is_ok(), "ERR_TRANSFER_FAILED");
                 self._safe_approve(tokens[i], pool_address, max_amounts_in[i]);
                 i += 1;
+
+                debug_println("self._safe_approve!!");
             }
 
             pool.join_pool(pool_amount_out, max_amounts_in);
+            debug_println("pool.join_pool finish!!");
 
             let mut j = 0;
             while j < tokens.len() {
@@ -224,8 +265,11 @@ mod action {
                     assert!(token.transfer(sender, token.balance_of(this)).is_ok(), "ERR_TRANSFER_FAILED");
                 }
                 j += 1;
+
+                debug_println("token.transfer finish!!");
             }
             assert!(pool.transfer(sender, pool.balance_of(this)), "ERR_TRANSFER_FAILED");
+            debug_println("pool.transfer finish!!");
         }
     }
 }
