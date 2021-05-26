@@ -1,5 +1,5 @@
 [package]
-name = "register"
+name = "action"
 version = "0.1.0"
 authors = ["lipu <83365885@qq.com>"]
 edition = "2018"
@@ -12,22 +12,25 @@ ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink"
 ink_lang = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 ink_prelude = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false }
 
-math = { version = "0.1.0", path = "math", default-features = false, features = ["ink-as-dependency"] }
-base = { version = "0.1.0", path = "base", default-features = false, features = ["ink-as-dependency"] }
-token = { version = "0.1.0", path = "token", default-features = false, features = ["ink-as-dependency"] }
-pool = { version = "0.1.0", path = "pool", default-features = false, features = ["ink-as-dependency"] }
-action = { version = "0.1.0", path = "action", default-features = false, features = ["ink-as-dependency"] }
+pool = { version = "0.1.0", path = "../pool", default-features = false, features = ["ink-as-dependency"] }
+factory = { version = "0.1.0", path = "../factory", default-features = false, features = ["ink-as-dependency"] }
+cdot = { path = "../../exchangeproxy/cdot", default-features = false, features = ["ink-as-dependency"] }
 
-scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2.0.1", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6.0", default-features = false, features = ["derive"], optional = true }
 
 # Should be removed once bitvecto-rs/bitvec#105 is resolved
 funty = "=1.1.0"
 
 [lib]
-name = "register"
+name = "action"
 path = "lib.rs"
-crate-type = ["cdylib"]
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
+]
 
 [features]
 default = ["std"]
@@ -43,19 +46,7 @@ std = [
     "scale-info/std",
     "ink_prelude/std",
 
-    "math/std",
-    "base/std",
-    "token/std",
     "pool/std",
-    "action/std",
+    "factory/std",
 ]
 ink-as-dependency = []
-
-[workspace]
-members = [
-    "math",
-    "base",
-    "token",
-    "pool",
-    "action",
-]

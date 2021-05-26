@@ -232,7 +232,9 @@ mod pool {
 
         #[ink(message)]
         pub fn transfer(&mut self, to: AccountId, value: u128) -> bool {
-            return self.token.transfer(to, value);
+            let sender = self._get_sender();
+            self.token.trans(sender, to, value);
+            return true;
         }
 
         #[ink(message)]

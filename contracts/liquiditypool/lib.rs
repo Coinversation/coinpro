@@ -17,152 +17,64 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod factory {
-    use ink_storage::collections::HashMap as StorageHashMap;
+mod register {
     use ink_lang::ToAccountId;
     use ink_env::call::FromAccountId;
     use ink_env::debug_println;
-    use ink_prelude::string::String;
 
-    use math::Math;
-    use base::Base;
-    use token::Token;
-    use pool::Pool;
+    use action::Action;
 
     #[ink(storage)]
-    pub struct Factory {
-        math_address: AccountId,
-        base_address: AccountId,
-
-        token_code_hash: Hash,
-        pool_code_hash: Hash,
-
-        is_pool: StorageHashMap<AccountId, bool>,
-        labs: AccountId,
+    pub struct Register {
+        action_code_hash: Hash,
     }
 
     #[ink(event)]
-    pub struct LogNewPool {
+    pub struct LogNewAction {
         #[ink(topic)]
         caller: Option<AccountId>,
         #[ink(topic)]
         pool: Option<AccountId>,
     }
 
-    #[ink(event)]
-    pub struct LogLabs {
-        #[ink(topic)]
-        caller: Option<AccountId>,
-        #[ink(topic)]
-        labs: Option<AccountId>,
-    }
-
-    impl Factory {
+    impl Register {
         #[ink(constructor)]
-        pub fn new(
-                   math_address: AccountId,
-                   base_address: AccountId,
-                   token_code_hash: Hash,
-                   pool_code_hash: Hash) -> Self {
-            let is_pool = StorageHashMap::new();
-            let labs = Self::env().caller();
+        pub fn new(action_code_hash: Hash) -> Self {
             Self {
-                math_address,
-                base_address,
-
-                token_code_hash,
-                pool_code_hash,
-
-                is_pool,
-                labs,
+                action_code_hash,
             }
         }
 
         #[ink(message)]
-        pub fn is_pool(&self, b: AccountId) -> bool {
-            return self.is_pool.get(&b).copied().unwrap_or(false);
-        }
-
-        #[ink(message)]
-        pub fn new_pool(&mut self,  salt: u32,
-                        token_endowment: u128,
-                        pool_endowment: u128) -> AccountId {
+        pub fn new_action(&mut self, salt: u32, action_endowment: u128) -> AccountId {
             let salt_bytes = salt.to_le_bytes();
             debug_println("enter ");
-            assert_ne!(self.token_code_hash, Hash::from([0; 32]));
-            assert_ne!(self.math_address, Default::default());
-            debug_println("token code hash and math address valid ");
+            assert_ne!(self.action_code_hash, Hash::from([0; 32]));
+            debug_println("action code hash valid ");
 
-            let token_params = Token::new(self.math_address)
-                .endowment(token_endowment)
-                .code_hash(self.token_code_hash)
+            let sender = Self::env().caller();
+            let action_params = Action::new(sender)
+                .endowment(action_endowment)
+                .code_hash(self.action_code_hash)
                 .salt_bytes(salt_bytes)
                 .params();
 
-            debug_println("build token contract params finish");
+            debug_println("build action contract params finish");
 
-            let token_address = self
+            let action_address = self
                 .env()
-                .instantiate_contract(&token_params)
-                .expect("failed at instantiating the `Token` contract");
+                .instantiate_contract(&action_params)
+                .expect("failed at instantiating the `Action` contract");
 
-            debug_println("instantiate token succeed");
+            debug_println("instantiate action succeed");
 
-            let pool_params = Pool::new(self.math_address, self.base_address, token_address)
-                .endowment(pool_endowment)
-                .code_hash(self.pool_code_hash)
-                .salt_bytes(salt_bytes)
-                .params();
-
-            let pool_address = self
-                .env()
-                .instantiate_contract(&pool_params)
-                .expect("failed at instantiating the `pool` contract");
-
-            debug_println("instantiate pool succeed");
-
-            let sender = Self::env().caller();
-            let mut t: Token = FromAccountId::from_account_id(token_address);
-            t.set_controller(pool_address);
-
-            let mut p: Pool = FromAccountId::from_account_id(pool_address);
-            p.set_controller(sender);
-            self.is_pool.insert(pool_address, true);
-
-            self.env().emit_event(LogNewPool {
+            self.env().emit_event(LogNewAction {
                 caller: Some(sender),
-                pool: Some(pool_address),
+                pool: Some(action_address),
             });
 
-            debug_println("new pool succeed");
-            return pool_address
-        }
-
-        #[ink(message)]
-        pub fn get_labs(&self) -> AccountId {
-            self.labs
-        }
-
-        #[ink(message)]
-        pub fn set_labs(&mut self, b: AccountId) {
-            let sender = Self::env().caller();
-            assert!(sender == self.labs, "ERR_NOT_CONVLABS");
-            self.env().emit_event(LogLabs {
-                caller: Some(sender),
-                labs: Some(b),
-            });
-
-            self.labs = b;
-        }
-
-        #[ink(message)]
-        pub fn collect(&mut self, pool_address: AccountId) {
-            assert!(Self::env().caller() == self.labs, "ERR_NOT_CONVLABS");
-            let this = self.env().account_id();
-            let mut p: Pool = FromAccountId::from_account_id(pool_address);
-            let collected = p.balance_of(this);
-            let r = p.transfer(self.labs, collected);
-            assert!(r, "ERR_TOKEN_FAILED");
+            debug_println("new action succeed");
+            return action_address
         }
     }
 }
