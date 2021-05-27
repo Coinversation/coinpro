@@ -27,7 +27,7 @@ mod pool {
                                     token_out: AccountId,
                                     min_amount_out: u128,
                                     max_price: u128,
-        ) -> u128 {unimplemented!()}
+        ) -> (u128,u128) {unimplemented!()}
 
         #[ink(message)]
         pub fn swap_exact_amount_out(&self,
@@ -36,7 +36,7 @@ mod pool {
                                      token_out: AccountId,
                                      token_amount_out: u128,
                                      max_price: u128,
-        ) -> u128 {unimplemented!()}
+        ) -> (u128,u128) {unimplemented!()}
         /// Constructor that initializes the `bool` value to `false`.
         ///
         /// Constructors can delegate to other constructors.

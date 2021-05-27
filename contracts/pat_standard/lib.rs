@@ -8,7 +8,7 @@ mod pat {
     use pat_trait::{Error as IError, IPat, Result as IResult};
     use ink_prelude::string::String;
     use ownership::Ownable;
-
+    use ink_env::debug_println;
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang as ink;
     #[cfg(not(feature = "ink-as-dependency"))]
@@ -433,6 +433,9 @@ mod pat {
             to: AccountId,
             value: Balance,
         ) -> IResult<()> {
+            let message = ink_prelude::format!("1 transfer_from_to: from is {:?},to is {:?} ||||| from_balance : {:?},  to_balance : {:?}value is {:?}" ,from,to, self.balance_of(from), self.balance_of(to),value);
+            debug_println(&message);
+
             let from_balance = self.balance_of(from);
             if from_balance < value {
                 return Err(IError::InsufficientBalance);
@@ -440,6 +443,8 @@ mod pat {
             self.balances.insert(from, from_balance - value);
             let to_balance = self.balance_of(to);
             self.balances.insert(to, to_balance + value);
+            let message = ink_prelude::format!("2 transfer_from_to: balance_of from_balance is {:?},to_balance is {:?}", self.balance_of(from), self.balance_of(to));
+            debug_println(&message);
             self.env().emit_event(Transfer {
                 from: Some(from),
                 to: Some(to),
