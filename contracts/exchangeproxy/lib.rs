@@ -127,11 +127,11 @@ mod exchangeproxy {
             let ti_balance:Balance = ti_contract.balance_of(exchange_account);
             let message = ink_prelude::format!("ti_contract.balance_of before is {:?}", ti_balance);
             debug_println(&message);
-            if ti_balance >= 0 {
-               let message = ink_prelude::format!("ti.balance_of before is {:?},", ti_contract.balance_of(exchange_account));
+            if ti_balance > 0 {
+               let message = ink_prelude::format!("ti.balance_of before is {:?},", ti_contract.balance_of(caller));
                debug_println(&message);
                 self._trans_(token_in,caller,ti_balance);
-               let message = ink_prelude::format!("ti.balance_of after is {:?},", ti_contract.balance_of(exchange_account));
+               let message = ink_prelude::format!("ti.balance_of after is {:?},", ti_contract.balance_of(caller));
                debug_println(&message);
            }
             debug_println("FINISH ...............");
@@ -196,7 +196,7 @@ mod exchangeproxy {
             let ti_balance:Balance = ti_contract.balance_of(exchange_account);
             let message = ink_prelude::format!("ti_contract.balance_of before is {:?}", ti_balance);
             debug_println(&message);
-            if ti_balance >= 0 {
+            if ti_balance > 0 {
                 let message = ink_prelude::format!("ti.balance_of before is {:?},", ti_contract.balance_of(exchange_account));
                 debug_println(&message);
                 self._trans_(token_in,caller,ti_balance);
