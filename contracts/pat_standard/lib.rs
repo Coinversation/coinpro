@@ -259,7 +259,11 @@ mod pat {
         fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> IResult<()> {
             let caller = self.env().caller();
             let allowance = self.allowance(from, caller);
+            let message = ink_prelude::format!(">>>>>>>>: transfer_from  from is {:?} , allowance is {:?}, value is {:?}",
+                                               from, allowance, value);
+            debug_println(&message);
             if allowance < value {
+                debug_println("InsufficientBalance");
                 return Err(IError::InsufficientAllowance);
             }
             self.transfer_from_to(from, to, value)?;
@@ -437,7 +441,12 @@ mod pat {
             debug_println(&message);
 
             let from_balance = self.balance_of(from);
+            let message = ink_prelude::format!(">>>>>>>>: transfer_from_to  from is {:?} , from_balance is {:?}, to is {:?}",
+                                               from, from_balance, to);
+            debug_println(&message);
+
             if from_balance < value {
+                debug_println("InsufficientBalance");
                 return Err(IError::InsufficientBalance);
             }
             self.balances.insert(from, from_balance - value);
@@ -445,11 +454,14 @@ mod pat {
             self.balances.insert(to, to_balance + value);
             let message = ink_prelude::format!("2 transfer_from_to: balance_of from_balance is {:?},to_balance is {:?}", self.balance_of(from), self.balance_of(to));
             debug_println(&message);
+
             self.env().emit_event(Transfer {
                 from: Some(from),
                 to: Some(to),
                 value,
             });
+
+            debug_println(">>>>>>>>: transfer_from_to emit_event finish");
             Ok(())
         }
 

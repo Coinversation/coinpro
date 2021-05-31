@@ -62,41 +62,6 @@ mod exchangeproxy {
         pub fn default() -> Self { Self::new(Default::default()) }
 
         #[ink(message)]
-        pub fn swap_test_in(
-            &mut self,
-            token_in: AccountId,
-            token_out: AccountId,
-            total_amount_in: u128,
-        ) -> u128 {
-            // let caller = self.env().caller();
-            // let exchange_account = self.env().account_id();
-            //
-            // let mut total_amount_out: u128 = 0;
-            // let message = ink_prelude::format!("1 begin balance_of caller is {:?}, total_amount_in is {:?}, exchange_account is {:?}",
-            //                                    caller, total_amount_in, exchange_account);
-            // debug_println(&message);
-            // // assert!(ti_contract.transfer_from(caller, exchange_account, total_amount_in).is_ok());
-            // self._trans_(token_in,caller,exchange_account,total_amount_in);
-
-            //
-            // let to_balance:Balance = to_contract.balance_of(exchange_account);
-            // let message = ink_prelude::format!("to_contract.balance_of is {:?}, total_amount_out is {:?}",
-            //                                    to_contract.balance_of(exchange_account), total_amount_out );
-            // debug_println(&message);
-            let caller :AccountId = self.env().caller();
-            let to_balance =999;
-            if to_balance > 0 {
-                debug_println("………………………… 0  begin……………………………………");
-                self._trans_(token_out,self.env().account_id(),caller,total_amount_in);
-                debug_println("…………………………… 0 end …………………………………………");
-            }
-
-            debug_println("……………………………next …………………………………………");
-            self._trans_(token_in,self.env().account_id(),caller,888);
-            debug_println("FINISH ...............");
-            total_amount_in
-        }
-        #[ink(message)]
         pub fn batch_swap_exact_in(
             &mut self,
             swaps: Vec<Swap>,
@@ -107,49 +72,29 @@ mod exchangeproxy {
         ) -> u128 {
             self._logs_();
             self._locks_();
-<<<<<<< Updated upstream
-            let mut ti: PAT = FromAccountId::from_account_id(token_in);
-            let mut to: PAT = FromAccountId::from_account_id(token_out);
-=======
             let caller = self.env().caller();
             let exchange_account = self.env().account_id();
             let ti: PAT = FromAccountId::from_account_id(token_in);
             let to: PAT = FromAccountId::from_account_id(token_out);
             let mut ti_contract = Lazy::new(ti);
             let mut to_contract = Lazy::new(to);
->>>>>>> Stashed changes
-
             let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
                                                token_in, token_out, total_amount_in,swaps.len());
             debug_println(&message);
             let mut total_amount_out: u128 = 0;
-<<<<<<< Updated upstream
-            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), total_amount_in).is_ok());
-            let message = ink_prelude::format!("swaps_len is {:?}, caller is {:?}",
-                                               swaps.len(), self.env().caller());
-=======
             let message = ink_prelude::format!("1 begin balance_of this is {:?},total_amount_in is {:?}, exchange_account is {:?}",
                                                ti_contract.balance_of(exchange_account),total_amount_in, exchange_account);
             debug_println(&message);
-            // assert!(ti_contract.transfer_from(caller, exchange_account, total_amount_in).is_ok());
-            self._trans_(token_in,caller,exchange_account,total_amount_in);
-            let message = ink_prelude::format!("swaps_len is {:?}, balance_of this 2 is {:?}", swaps.len(), ti_contract.balance_of(exchange_account));
->>>>>>> Stashed changes
+            assert!(ti_contract.transfer_from(caller, exchange_account, total_amount_in).is_ok());
+
             debug_println(&message);
             assert!(swaps.len() > 0, "swaps is empty");
             ink_env::debug_println("batch_swap_exact_in 1. =============");
 
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
-<<<<<<< Updated upstream
-                ink_env::debug_println("batch_swap_exact_in 2. =============");
-
-                if ti.allowance(self.env().account_id(), x.pool) < total_amount_in {
-                    ti.approve(x.pool, u128::MAX);
-=======
                 if ti_contract.allowance(self.env().account_id(), x.pool) < total_amount_in {
                     ti_contract.approve(x.pool, u128::MAX);
->>>>>>> Stashed changes
                 }
 
                 ink_env::debug_println("swap_exact_amount_in begin. =============");
@@ -167,25 +112,13 @@ mod exchangeproxy {
                 debug_println(&message);
             }
             assert!(total_amount_out>=min_total_amount_out, "ERR_LIMIT_OUT");
-<<<<<<< Updated upstream
-            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("to.transfer end. =============");
-
-            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("ti.transfer end. =============");
-=======
-
             let to_balance:Balance = to_contract.balance_of(exchange_account);
             let message = ink_prelude::format!("to_contract.balance_of is {:?}, total_amount_out is {:?}",
                                                to_contract.balance_of(exchange_account), total_amount_out );
             debug_println(&message);
-
-            let to_balance =100;
             if to_balance > 0 {
                 debug_println("………………………… balance over 0 begin……………………………………");
-                // let trans = to_contract.transfer_from(exchange_account,caller,to_balance).is_ok();
-                // assert!(trans, "ERR_TRANSFER_FAILED");
-                self._trans_(token_out,exchange_account,caller,to_balance);
+                self._trans_(token_out,caller,to_balance);
                 debug_println("……………………………balance over 0 end …………………………………………");
             }
             let message = ink_prelude::format!("to_contract.balance_of is {:?}, to.balance_caller IS {:?}",
@@ -194,13 +127,10 @@ mod exchangeproxy {
             let ti_balance:Balance = ti_contract.balance_of(exchange_account);
             let message = ink_prelude::format!("ti_contract.balance_of before is {:?}", ti_balance);
             debug_println(&message);
->>>>>>> Stashed changes
-
             if ti_balance >= 0 {
                let message = ink_prelude::format!("ti.balance_of before is {:?},", ti_contract.balance_of(exchange_account));
                debug_println(&message);
-               // assert!(ti_contract.transfer_from(exchange_account,caller, ti_balance).is_ok(), "ERR_TRANSFER_FAILED");
-                self._trans_(token_in,exchange_account,caller,ti_balance);
+                self._trans_(token_in,caller,ti_balance);
                let message = ink_prelude::format!("ti.balance_of after is {:?},", ti_contract.balance_of(exchange_account));
                debug_println(&message);
            }
@@ -222,18 +152,21 @@ mod exchangeproxy {
             self._logs_();
             self._locks_();
             let mut total_amount_in: u128 = 0;
-            let mut ti: PAT = FromAccountId::from_account_id(token_in);
-            let mut to: PAT = FromAccountId::from_account_id(token_out);
-
+            let caller = self.env().caller();
+            let exchange_account = self.env().account_id();
+            let ti: PAT = FromAccountId::from_account_id(token_in);
+            let to: PAT = FromAccountId::from_account_id(token_out);
+            let mut ti_contract = Lazy::new(ti);
+            let mut to_contract = Lazy::new(to);
             let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
                                                token_in, token_out, total_amount_in,swaps.len());
             debug_println(&message);
-            assert!(ti.transfer_from(self.env().caller(), self.env().account_id(), max_total_amount_in).is_ok());
+            assert!(ti_contract.transfer_from(caller, exchange_account, max_total_amount_in).is_ok());
             assert!(swaps.len() > 0, "swaps is empty");
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
-                if ti.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
-                    ti.approve(x.pool, u128::MAX);
+                if ti_contract.allowance(self.env().account_id(), x.pool) < max_total_amount_in {
+                    ti_contract.approve(x.pool, u128::MAX);
                 }
                 ink_env::debug_println("swap_exact_amount_out begin. =============");
 
@@ -247,11 +180,30 @@ mod exchangeproxy {
                 total_amount_in = self.add(token_amount_in, total_amount_in);
             }
             assert!(total_amount_in<=max_total_amount_in,"ERR_LIMIT_IN");
-            assert!(to.transfer(self.env().caller(),to.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
             ink_env::debug_println("to.transfer end. =============");
-
-            assert!(ti.transfer(self.env().caller(),ti.balance_of(self.env().account_id())).is_ok(), "ERR_TRANSFER_FAILED");
-            ink_env::debug_println("ti.transfer end. =============");
+            let to_balance:Balance = to_contract.balance_of(exchange_account);
+            let message = ink_prelude::format!("to_contract.balance_of is {:?}, total_amount_in is {:?}",
+                                               to_contract.balance_of(exchange_account), total_amount_in );
+            debug_println(&message);
+            if to_balance > 0 {
+                debug_println("………………………… balance over 0 begin……………………………………");
+                self._trans_(token_out,caller,to_balance);
+                debug_println("……………………………balance over 0 end …………………………………………");
+            }
+            let message = ink_prelude::format!("to_contract.balance_of is {:?}, to.balance_caller IS {:?}",
+                                               to_contract.balance_of(exchange_account),  to_contract.balance_of(caller));
+            debug_println(&message);
+            let ti_balance:Balance = ti_contract.balance_of(exchange_account);
+            let message = ink_prelude::format!("ti_contract.balance_of before is {:?}", ti_balance);
+            debug_println(&message);
+            if ti_balance >= 0 {
+                let message = ink_prelude::format!("ti.balance_of before is {:?},", ti_contract.balance_of(exchange_account));
+                debug_println(&message);
+                self._trans_(token_in,caller,ti_balance);
+                let message = ink_prelude::format!("ti.balance_of after is {:?},", ti_contract.balance_of(exchange_account));
+                debug_println(&message);
+            }
+            debug_println("FINISH ...............");
 
             self._unlocks_();
             total_amount_in
@@ -410,6 +362,20 @@ mod exchangeproxy {
             total_amount_in
         }
 
+        pub fn _trans_(&self, token: AccountId, to: AccountId, value:Balance ) {
+            let message = ink_prelude::format!("1^^^^^^_trans_  value is {:?}, to is {:?}",
+                                               value, to);
+            debug_println(&message);
+            let token: PAT = FromAccountId::from_account_id(token);
+            let mut token_contract = Lazy::new(token);
+            // if token_contract.allowance(from, to) < value {
+            //     token_contract.approve(to, u128::MAX);
+            // }
+
+            let fer = token_contract.transfer(to, value).is_ok();
+            assert!(fer);
+            debug_println("1^^^^^^  _trans_ finish ^^^^^^^^^^^^^^^");
+        }
 
         //............................................
         /// Simply returns the current value of our `bool`.
@@ -441,17 +407,6 @@ mod exchangeproxy {
 
         fn _unlocks_(&mut self) {
             self._mutex = false;
-        }
-
-        pub fn _trans_(&self, token: AccountId, from: AccountId, to: AccountId, value:Balance ) {
-            let message1 = ink_prelude::format!("_trans_ value is {:?}", value);
-            ink_env::debug_println(&message1);
-
-            let token: PAT = FromAccountId::from_account_id(token);
-            let mut token_contract = Lazy::new(token);
-            let fer = token_contract.transfer_from(from, to, value).is_ok();
-            assert!(fer);
-            debug_println("_trans_ finish ^^^^^^^^^^^^^^^");
         }
     }
 }
