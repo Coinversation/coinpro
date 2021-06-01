@@ -336,10 +336,15 @@ mod pool {
         #[ink(message)]
         pub fn set_public_swap(&mut self, public:bool) {
             self._lock_();
+            debug_println("enter set_public_swap()");
             assert!(!self.finalized, "ERR_IS_FINALIZED");
+            debug_println("enter set_public_swap()1");
             assert!(self.controller == self._get_sender(), "ERR_NOT_CONTROLLER");
+            debug_println("enter set_public_swap()2");
             self.public_swap = public;
+            debug_println("enter set_public_swap()3");
             self._unlock_();
+            debug_println("enter set_public_swap()4");
         }
 
         #[ink(message)]
@@ -351,10 +356,15 @@ mod pool {
             assert!(!self.finalized, "ERR_IS_FINALIZED");
             assert!(u128::from(self.tokens.len()) >= MIN_BOUND_TOKENS, "ERR_MIN_TOKENS");
             self.finalized = true;
+            debug_println("enter finalize()1");
             self.public_swap = true;
+            debug_println("enter finalize()2");
             self._mint_pool_share(INIT_POOL_SUPPLY);
+            debug_println("enter finalize()3");
             self._push_pool_share(sender, INIT_POOL_SUPPLY);
+            debug_println("enter finalize()4");
             self._unlock_();
+            debug_println("enter finalize()5");
         }
 
         #[ink(message)]
