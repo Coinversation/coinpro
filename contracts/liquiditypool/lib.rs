@@ -88,10 +88,10 @@ mod factory {
                         token_endowment: u128,
                         pool_endowment: u128) -> AccountId {
             let salt_bytes = salt.to_le_bytes();
-            debug_println("enter ");
+            debug_println!("enter ");
             assert_ne!(self.token_code_hash, Hash::from([0; 32]));
             assert_ne!(self.math_address, Default::default());
-            debug_println("token code hash and math address valid ");
+            debug_println!("token code hash and math address valid ");
 
             let token_params = Token::new(self.math_address)
                 .endowment(token_endowment)
@@ -99,14 +99,14 @@ mod factory {
                 .salt_bytes(salt_bytes)
                 .params();
 
-            debug_println("build token contract params finish");
+            debug_println!("build token contract params finish");
 
             let token_address = self
                 .env()
                 .instantiate_contract(&token_params)
                 .expect("failed at instantiating the `Token` contract");
 
-            debug_println("instantiate token succeed");
+            debug_println!("instantiate token succeed");
 
             let pool_params = Pool::new(self.math_address, self.base_address, token_address)
                 .endowment(pool_endowment)
@@ -119,7 +119,7 @@ mod factory {
                 .instantiate_contract(&pool_params)
                 .expect("failed at instantiating the `pool` contract");
 
-            debug_println("instantiate pool succeed");
+            debug_println!("instantiate pool succeed");
 
             let sender = Self::env().caller();
             let mut t: Token = FromAccountId::from_account_id(token_address);
@@ -134,7 +134,7 @@ mod factory {
                 pool: Some(pool_address),
             });
 
-            debug_println("new pool succeed");
+            debug_println!("new pool succeed");
             return pool_address
         }
 

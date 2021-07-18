@@ -87,11 +87,11 @@ mod math {
         pub fn bmul(&self, a : u128, b : u128) -> u128 {
             let c0 = a * b;
             assert!(a == 0 || c0 / a == b, "ERR_MUL_OVERFLOW");
-            ink_env::debug_println("assert 1");
+            ink_env::debug_println!("assert 1");
 
             let c1 = c0 + (BONE / 2);
             assert!(c1 >= c0, "ERR_MUL_OVERFLOW");
-            ink_env::debug_println("assert 2");
+            ink_env::debug_println!("assert 2");
             let c2 = c1 / BONE;
             return c2;
         }
