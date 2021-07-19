@@ -181,20 +181,20 @@ mod stakepool {
         pub fn issue_cusd(&mut self, cratio: u32) -> (CollateralId, Balance) {
 
             assert!(cratio >= self.min_c_ratio,"ERR_CRATION");
-            ink_env::debug_println("xxxxx_issue_cusd begin.");
+            ink_env::debug_println!("xxxxx_issue_cusd begin.");
             let caller = self.env().caller();
             let collateral = self.env().transferred_balance();
             let cusd_decimals = 10u128.saturating_pow(self.cusd_token.token_decimals().unwrap() as u32);
             let pat_decimals = 10u128.saturating_pow(self.pat_token.token_decimals().unwrap() as u32);
 
             let message = ink_prelude::format!("cusd_decimals is {:?}, pat_decimals is {:?}, collateral is {:?}", cusd_decimals, pat_decimals, collateral);
-            debug_println(&message);
+            debug_println!("{}",&message);
 
             let collateral_value =((collateral/pat_decimals) * (self.pat_price as u128)) / (PAT_PRICE_DECIMALS as u128);
 
             let cusd =  (collateral_value * cusd_decimals  * 100) / (cratio as u128);
             let message = ink_prelude::format!("collateral_value is {:?}, self.pat_price is {:?}, cusd is {:?}", collateral_value,self.pat_price,  cusd);
-            debug_println(&message);
+            debug_println!("{}",&message);
 
             let cstate = CollateralState {
                 issuer:  caller,
@@ -204,7 +204,7 @@ mod stakepool {
             };
             self.cstate_count += 1;
             self.cstate.insert(self.cstate_count, cstate);
-            debug_println("xxxxx_end");
+            debug_println!("xxxxx_end");
             self.cusd_token.mint(caller, cusd).unwrap();
             self.env().emit_event(IssueCusd {
                 c_id: self.cstate_count,

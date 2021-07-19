@@ -261,9 +261,9 @@ mod pat {
             let allowance = self.allowance(from, caller);
             let message = ink_prelude::format!(">>>>>>>>: transfer_from  from is {:?} , allowance is {:?}, value is {:?}",
                                                from, allowance, value);
-            debug_println(&message);
+            debug_println!("{}",&message);
             if allowance < value {
-                debug_println("InsufficientBalance");
+                debug_println!("InsufficientBalance");
                 return Err(IError::InsufficientAllowance);
             }
             self.transfer_from_to(from, to, value)?;
@@ -438,22 +438,22 @@ mod pat {
             value: Balance,
         ) -> IResult<()> {
             let message = ink_prelude::format!("1 transfer_from_to: from is {:?},to is {:?} ||||| from_balance : {:?},  to_balance : {:?}value is {:?}" ,from,to, self.balance_of(from), self.balance_of(to),value);
-            debug_println(&message);
+            debug_println!("{}",&message);
 
             let from_balance = self.balance_of(from);
             let message = ink_prelude::format!(">>>>>>>>: transfer_from_to  from is {:?} , from_balance is {:?}, to is {:?}",
                                                from, from_balance, to);
-            debug_println(&message);
+            debug_println!("{}",&message);
 
             if from_balance < value {
-                debug_println("InsufficientBalance");
+                debug_println!("InsufficientBalance");
                 return Err(IError::InsufficientBalance);
             }
             self.balances.insert(from, from_balance - value);
             let to_balance = self.balance_of(to);
             self.balances.insert(to, to_balance + value);
             let message = ink_prelude::format!("2 transfer_from_to: balance_of from_balance is {:?},to_balance is {:?}", self.balance_of(from), self.balance_of(to));
-            debug_println(&message);
+            debug_println!("{}",&message);
 
             self.env().emit_event(Transfer {
                 from: Some(from),
@@ -461,7 +461,7 @@ mod pat {
                 value,
             });
 
-            debug_println(">>>>>>>>: transfer_from_to emit_event finish");
+            debug_println!(">>>>>>>>: transfer_from_to emit_event finish");
             Ok(())
         }
 
