@@ -200,7 +200,7 @@ mod pat {
         }
         /// Issue a new amount of tokens
         /// these tokens are deposited into the owner address
-        #[ink(message)]
+        #[ink(message, selector = "0xcfdd9aa2")]
         pub fn mint(&mut self, _user: AccountId, _amount: Balance) -> Result<()> {
             unimplemented!()
         }
@@ -209,7 +209,7 @@ mod pat {
         /// These tokens are withdrawn from the owner address
         /// if the balance must be enough to cover the redeem
         /// or the call will fail.
-        #[ink(message)]
+        #[ink(message, selector = "0xb1efc17b")]
         pub fn burn(&mut self, _user: AccountId, _amount: Balance) -> Result<()> {
             unimplemented!()
         }

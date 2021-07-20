@@ -16,9 +16,9 @@ describe('PAT', () => {
     const signers = await getSigners();
     const Alice = signers[0];
     const sender = await getRandomSigner(Alice, one.muln(10000));
-    const contractFactory = await getContractFactory('pat', sender);
-    const contract = await contractFactory.deploy('new', '1000');
-    const abi = artifacts.readArtifact('pat');
+    const contractFactory = await getContractFactory('pat_standard', sender);
+    const contract = await contractFactory.deploy('IPat,new', '1000', 'Coinversation USD Token', 'Cusd', '6');
+    const abi = artifacts.readArtifact('pat_standard');
     const receiver = await getRandomSigner();
 
     return { sender, contractFactory, contract, abi, receiver, Alice, one };
@@ -26,25 +26,14 @@ describe('PAT', () => {
 
   it('Assigns initial balance', async () => {
     const { contract, sender } = await setup();
-    const result = await contract.query.balanceOf(sender.address);
+    const result = await contract.query["iPat,balanceOf"](sender.address);
     expect(result.output).to.equal(1000);
-  });
-
-  it('Transfer adds amount to destination account', async () => {
-    const { contract, receiver } = await setup();
-    await expect(() =>
-      contract.tx.transfer(receiver.address, 7)
-    ).to.changeTokenBalance(contract, receiver, 7);
-
-    await expect(() =>
-      contract.tx.transfer(receiver.address, 7)
-    ).to.changeTokenBalances(contract, [contract.signer, receiver], [-7, 7]);
   });
 
   it('Transfer emits event', async () => {
     const { contract, sender, receiver } = await setup();
 
-    await expect(contract.tx.transfer(receiver.address, 7))
+    await expect(contract.tx["iPat,transfer"](receiver.address, 7))
       .to.emit(contract, 'Transfer')
       .withArgs(sender.address, receiver.address, 7);
   });
@@ -52,7 +41,7 @@ describe('PAT', () => {
   it('Can not transfer above the amount', async () => {
     const { contract, receiver } = await setup();
 
-    await expect(contract.tx.transfer(receiver.address, 1007)).to.not.emit(
+    await expect(contract.tx["iPat,transfer"](receiver.address, 1007)).to.not.emit(
       contract,
       'Transfer'
     );
@@ -61,12 +50,10 @@ describe('PAT', () => {
   it('Can not transfer from empty account', async () => {
     const { contract, Alice, one, sender } = await setup();
 
-    const emptyAccount = await getRandomSigner(Alice, one.muln(10000));
+    const emptyAccount = await getRandomSigner(Alice, one.muln(10));
 
     await expect(
-      contract.tx.transfer(sender.address, 7, {
-        signer: emptyAccount
-      })
+      contract.connect(emptyAccount).tx["iPat,transfer"](sender.address, 7)
     ).to.not.emit(contract, 'Transfer');
   });
 });
