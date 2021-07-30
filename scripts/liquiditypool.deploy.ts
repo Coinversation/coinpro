@@ -21,7 +21,7 @@ async function run() {
 
     const mathContract = await mathContractFactory.deployed('new', {
         gasLimit: '200000000000',
-        value:    '1000000000000',
+        value:    '83500000000050000',
         salt: 'Coinversation Math'
     });
     console.log('Deploy math contract successfully.');
@@ -43,7 +43,7 @@ async function run() {
 
     const baseContract = await baseContractFactory.deployed('new', mathContract.address, {
         gasLimit: '200000000000',
-        value:    '1000000000000',
+        value:    '83500000000050000',
         salt: 'Coinversation Base'
     });
     console.log('Deploy base contract successfully.');
@@ -66,7 +66,7 @@ async function run() {
     const tokenFactory = await getContractFactory('token', signer);
     const tokenContract = await tokenFactory.deployed('new', mathContract.address, {
         gasLimit: '200000000000',
-        value:    '1000000000000',
+        value:    '83500000000050000',
         salt: 'Coinversation Token'
     });
     console.log('Deploy token contract successfully.');
@@ -89,7 +89,7 @@ async function run() {
     const poolFactory = await getContractFactory('pool', signer);
     const poolContract = await poolFactory.deployed('new', mathContract.address, baseContract.address, tokenContract.address, {
         gasLimit: '200000000000',
-        value:    '1000000000000',
+        value:    '83500000000050000',
         salt: 'Coinversation Pool'
     });
     console.log('Deploy pool contract successfully.');
@@ -111,7 +111,7 @@ async function run() {
     const contract = await contractFactory.deployed('new', mathContract.address,
         baseContract.address, tokenContract.abi.project.source.wasm.hash.toHex(), poolContract.abi.project.source.wasm.hash.toHex(), {
         gasLimit: '200000000000',
-        value:    '10000000000000000',
+        value:    '100000000000000000',
         salt: 'Coinversation Factory'
     });
     console.log('Deploy factory contract successfully.');

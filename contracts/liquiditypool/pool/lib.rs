@@ -16,7 +16,7 @@ mod pool {
         traits::{PackedLayout, SpreadLayout},
         Lazy,
     };
-    use ink_env::debug_println;
+    // use ink_env::debug_println;
 
     use math::Math;
     use math::{
@@ -163,9 +163,10 @@ mod pool {
             return (sender, this);
         }
 
+
         pub fn _pull_underlying(&self, erc20: AccountId, from: AccountId, to: AccountId, amount: u128) {
-            let message1 = ink_prelude::format!("_pull_underlying amount is {:?}", amount);
-            ink_env::debug_println!("{}",&message1);
+            // let message1 = ink_prelude::format!("_pull_underlying amount is {:?}", amount);
+            // ink_env::debug_println!("{}",&message1);
 
             let mut erc: PAT = FromAccountId::from_account_id(erc20);
             let fer = erc.transfer_from(from, to, amount).is_ok();
@@ -173,20 +174,20 @@ mod pool {
         }
 
         pub fn _push_underlying(&self, erc20: AccountId, to: AccountId, amount: u128) {
-            let message = ink_prelude::format!("before _push_underlying amount is {:?}", amount);
-            ink_env::debug_println!("{}",&message);
+            // let message = ink_prelude::format!("before _push_underlying amount is {:?}", amount);
+            // ink_env::debug_println!("{}",&message);
 
             let mut erc: PAT = FromAccountId::from_account_id(erc20);
             let fer = erc.transfer(to, amount).is_ok();
             assert!(fer);
 
-            let b = erc.balance_of(to);
-            let message1 = ink_prelude::format!("after _push_underlying to amount is {:?}", b);
-            ink_env::debug_println!("{}",&message1);
+            // let b = erc.balance_of(to);
+            // let message1 = ink_prelude::format!("after _push_underlying to amount is {:?}", b);
+            // ink_env::debug_println!("{}",&message1);
 
-            let b = erc.balance_of(to);
-            let message1 = ink_prelude::format!("_push_underlying to account id is {:?}", to);
-            ink_env::debug_println!("{}",&message1);
+            // let b = erc.balance_of(to);
+            // let message1 = ink_prelude::format!("_push_underlying to account id is {:?}", to);
+            // ink_env::debug_println!("{}",&message1);
         }
 
         fn _pull_pool_share(&mut self, from: AccountId, amount: u128) {
@@ -358,7 +359,7 @@ mod pool {
         #[ink(message)]
         pub fn bind(&mut self, token: AccountId, balance: u128, denorm:u128) {
 
-            debug_println!("enter bind()");
+            // debug_println!("enter bind()");
             assert!(self.controller == self._get_sender(), "ERR_NOT_CONTROLLER");
             assert!(!self._get_record(token).unwrap().bound, "ERR_IS_BOUND");
             assert!(!self.finalized, "ERR_IS_FINALIZED");
@@ -372,7 +373,7 @@ mod pool {
             self.records.insert(token, r);
             self.tokens.push(token);
 
-            debug_println!("ready to enter rebind()");
+            // debug_println!("ready to enter rebind()");
             self.rebind(token, balance, denorm);
         }
 
@@ -391,7 +392,7 @@ mod pool {
 
         #[ink(message)]
         pub fn rebind(&mut self, token: AccountId, balance: u128, denorm:u128) {
-            debug_println!("enter rebind()");
+            // debug_println!("enter rebind()");
 
             self._lock_();
 
@@ -403,7 +404,7 @@ mod pool {
             assert!(denorm <= MAX_WEIGHT, "ERR_MAX_WEIGHT");
             assert!(balance >= MIN_BALANCE, "ERR_MIN_BALANCE");
 
-            debug_println!("ready to cal total_weight");
+            // debug_println!("ready to cal total_weight");
 
             // Adjust the denorm and totalWeight
             let old_weight = self._get_record(token).unwrap().de_norm;
@@ -492,17 +493,17 @@ mod pool {
             let out_record_balance = self._get_record(token_out).unwrap().balance;
             let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
-            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
-            ink_env::debug_println!("{}",&message);
+            // let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            // ink_env::debug_println!("{}",&message);
 
-            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
-            ink_env::debug_println!("{}",&message1);
+            // let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            // ink_env::debug_println!("{}",&message1);
 
-            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
-            ink_env::debug_println!("{}",&message2);
+            // let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            // ink_env::debug_println!("{}",&message2);
 
-            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
-            ink_env::debug_println!("{}",&message3);
+            // let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            // ink_env::debug_println!("{}",&message3);
 
             return self.base.calc_spot_price(in_record_balance, in_record_de_norm,
                                              out_record_balance, out_record_de_norm, self.swap_fee);
@@ -523,6 +524,7 @@ mod pool {
                                              out_record_balance, out_record_de_norm, 0);
         }
 
+        ///ERC20 in, LP out. todo, need check the lenth of max_amounts_in
         #[ink(message)]
         pub fn join_pool(&mut self, pool_amount_out: u128, max_amounts_in: Vec<u128>) {
             self._lock_();
@@ -562,6 +564,7 @@ mod pool {
             self._unlock_();
         }
 
+        ///LP in, ERC20 out
         #[ink(message)]
         pub fn exit_pool(&mut self, pool_amount_in: u128, min_amounts_out: Vec<u128>) {
             self._lock_();
@@ -607,6 +610,7 @@ mod pool {
             assert!(self.public_swap, "ERR_SWAP_NOT_PUBLIC");
         }
 
+        ///max_price 合约卖token_out的价格,单位：token_in/token_out
         #[ink(message)]
         pub fn swap_exact_amount_in(&mut self,
                                     token_in: AccountId,
@@ -614,41 +618,41 @@ mod pool {
                                     token_out: AccountId,
                                     min_amount_out: u128,
                                     max_price: u128) ->(u128, u128) {
-            debug_println!("enter swap_exact_amount_in");
+            // debug_println!("enter swap_exact_amount_in");
 
             self._lock_();
             self.require_valid_bound_swap(token_in, token_out);
 
-            debug_println!("token isvalid");
+            // debug_println!("token isvalid");
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
             let out_record_balance = self._get_record(token_out).unwrap().balance;
             let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
-            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
-            ink_env::debug_println!("{}",&message);
+            // let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            // ink_env::debug_println!("{}",&message);
 
-            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
-            ink_env::debug_println!("{}",&message1);
+            // let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            // ink_env::debug_println!("{}",&message1);
 
-            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
-            ink_env::debug_println!("{}",&message2);
+            // let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            // ink_env::debug_println!("{}",&message2);
 
-            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
-            ink_env::debug_println!("{}",&message3);
+            // let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            // ink_env::debug_println!("{}",&message3);
 
             assert!(token_amount_in <= self.math.bmul(in_record_balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
-            debug_println!("token_amount_in is valid");
+            // debug_println!("token_amount_in is valid");
 
             let spot_price_before = self.base.calc_spot_price(in_record_balance,
                                                               in_record_de_norm,
                                                               out_record_balance,
                                                               out_record_de_norm,
                                                               self.swap_fee);
-            debug_println!("cal spot_price_before finish");
+            // debug_println!("cal spot_price_before finish");
             assert!(spot_price_before <= max_price, "ERR_BAD_LIMIT_PRICE");
-            debug_println!("spot_price_before is valid");
+            // debug_println!("spot_price_before is valid");
 
 
             let token_amount_out = self.base.calc_out_given_in(in_record_balance,
@@ -657,9 +661,9 @@ mod pool {
                                                                out_record_de_norm,
                                                                token_amount_in,
                                                                self.swap_fee);
-            debug_println!("cal calc_out_given_in finish");
+            // debug_println!("cal calc_out_given_in finish");
             assert!(token_amount_out >= min_amount_out, "ERR_LIMIT_OUT");
-            debug_println!("token_amount_out is valid");
+            // debug_println!("token_amount_out is valid");
 
             let new_in_balance = self.math.badd(in_record_balance, token_amount_in);
             let new_out_balance = self.math.bsub(out_record_balance, token_amount_out);
@@ -670,19 +674,19 @@ mod pool {
                                                              out_record_de_norm,
                                                              self.swap_fee);
 
-            debug_println!("calc_spot_price finish");
+            // debug_println!("calc_spot_price finish");
 
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
-            debug_println!("calc_spot_price finish1");
+            // debug_println!("calc_spot_price finish1");
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
-            debug_println!("calc_spot_price finish2");
+            // debug_println!("calc_spot_price finish2");
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
-            debug_println!("calc_spot_price finish3");
+            // debug_println!("calc_spot_price finish3");
 
             self._update_balance(token_in, new_in_balance);
             self._update_balance(token_out, new_out_balance);
 
-            debug_println!("_update_balance finish");
+            // debug_println!("_update_balance finish");
 
             let (sender, this) = self._get_sender_and_this();
 
@@ -696,7 +700,7 @@ mod pool {
 
             self._pull_underlying(token_in, sender, this, token_amount_in);
             self._push_underlying(token_out, sender, token_amount_out);
-            debug_println!("transfer finish");
+            // debug_println!("transfer finish");
 
             self._unlock_();
 
@@ -711,10 +715,10 @@ mod pool {
                                      token_amount_out: u128,
                                      max_price: u128) ->(u128, u128) {
             self._lock_();
-            debug_println!("enter swap_exact_amount_out");
+            // debug_println!("enter swap_exact_amount_out");
             self.require_valid_bound_swap(token_in, token_out);
 
-            debug_println!("token isvalid");
+            // debug_println!("token isvalid");
 
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
@@ -722,21 +726,21 @@ mod pool {
             let out_record_balance = self._get_record(token_out).unwrap().balance;
             let out_record_de_norm = self._get_record(token_out).unwrap().de_norm;
 
-            let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
-            ink_env::debug_println!("{}",&message);
+            // let message = ink_prelude::format!("in_record_balance {:?}", in_record_balance);
+            // ink_env::debug_println!("{}",&message);
 
-            let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
-            ink_env::debug_println!("{}",&message1);
+            // let message1 = ink_prelude::format!("in_record_de_norm {:?}", in_record_de_norm);
+            // ink_env::debug_println!("{}",&message1);
 
-            let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
-            ink_env::debug_println!("{}",&message2);
+            // let message2 = ink_prelude::format!("out_record_balance {:?}", out_record_balance);
+            // ink_env::debug_println!("{}",&message2);
 
-            let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
-            ink_env::debug_println!("{}",&message3);
+            // let message3 = ink_prelude::format!("out_record_de_norm {:?}", out_record_de_norm);
+            // ink_env::debug_println!("{}",&message3);
 
             assert!(token_amount_out <= self.math.bmul(out_record_balance, MAX_OUT_RATIO), "ERR_MAX_OUT_RATIO");
 
-            debug_println!("token_amount_out is valid");
+            // debug_println!("token_amount_out is valid");
 
             let spot_price_before = self.base.calc_spot_price(in_record_balance,
                                                               in_record_de_norm,
@@ -744,11 +748,11 @@ mod pool {
                                                               out_record_de_norm,
                                                               self.swap_fee);
 
-            debug_println!("calc_spot_price finish");
+            // debug_println!("calc_spot_price finish");
 
             assert!(spot_price_before <= max_price, "ERR_BAD_LIMIT_PRICE");
 
-            debug_println!("spot_price_before valid");
+            // debug_println!("spot_price_before valid");
 
             let token_amount_in = self.base.calc_in_given_out(in_record_balance,
                                                               in_record_de_norm,
@@ -756,10 +760,10 @@ mod pool {
                                                               out_record_de_norm,
                                                               token_amount_out,
                                                               self.swap_fee);
-            debug_println!("calc_in_given_out finish");
+            // debug_println!("calc_in_given_out finish");
 
             assert!(token_amount_in <= max_amount_in, "ERR_LIMIT_IN");
-            debug_println!("token_amount_in valid");
+            // debug_println!("token_amount_in valid");
 
             let new_in_record_balance = self.math.badd(in_record_balance, token_amount_in);
             let new_out_record_balance = self.math.bsub(out_record_balance, token_amount_out);
@@ -770,29 +774,29 @@ mod pool {
                                                              out_record_de_norm,
                                                              self.swap_fee);
 
-            debug_println!("calc_spot_price finish1");
+            // debug_println!("calc_spot_price finish1");
 
             assert!(spot_price_after >= spot_price_before, "ERR_MATH_APPROX");
-            debug_println!("calc_spot_price finish2");
+            // debug_println!("calc_spot_price finish2");
 
             assert!(spot_price_after <= max_price, "ERR_LIMIT_PRICE");
-            debug_println!("calc_spot_price finish3");
+            // debug_println!("calc_spot_price finish3");
 
-            let message1 = ink_prelude::format!("spot_price_before {:?}", spot_price_before);
-            ink_env::debug_println!("{}",&message1);
+            // let message1 = ink_prelude::format!("spot_price_before {:?}", spot_price_before);
+            // ink_env::debug_println!("{}",&message1);
 
-            let message2 = ink_prelude::format!("token_amount_in {:?}", token_amount_in);
-            ink_env::debug_println!("{}",&message2);
+            // let message2 = ink_prelude::format!("token_amount_in {:?}", token_amount_in);
+            // ink_env::debug_println!("{}",&message2);
 
-            let message3 = ink_prelude::format!("token_amount_out {:?}", token_amount_out);
-            ink_env::debug_println!("{}",&message3);
+            // let message3 = ink_prelude::format!("token_amount_out {:?}", token_amount_out);
+            // ink_env::debug_println!("{}",&message3);
 
             assert!(spot_price_before <= self.math.bdiv(token_amount_in, token_amount_out), "ERR_MATH_APPROX");
-            debug_println!("calc_spot_price finish4");
+            // debug_println!("calc_spot_price finish4");
 
             self._update_balance(token_in, new_in_record_balance);
             self._update_balance(token_out, new_out_record_balance);
-            debug_println!("_update_balance finish");
+            // debug_println!("_update_balance finish");
 
             let (sender, this) = self._get_sender_and_this();
 
@@ -806,7 +810,7 @@ mod pool {
 
             self._pull_underlying(token_in, sender, this, token_amount_in);
             self._push_underlying(token_out, sender, token_amount_out);
-            debug_println!("transfer finish");
+            // debug_println!("transfer finish");
 
             self._unlock_();
             return (token_amount_in, spot_price_after);
@@ -817,13 +821,14 @@ mod pool {
             assert!(self._get_record(token_in).unwrap().bound, "ERR_NOT_BOUND");
         }
 
+        //用户打入一定数量ERC20币，合约自动计算流动池占比并打LP给用户
         #[ink(message)]
         pub fn join_swap_extern_amount_in(&mut self,
                                           token_in: AccountId,
                                           token_amount_in: u128,
                                           min_pool_amount_out: u128) -> u128 {
             self._lock_();
-            debug_println!("enter join_swap_extern_amount_in");
+            // debug_println!("enter join_swap_extern_amount_in");
 
             self.require_finalize_bound(token_in);
             assert!(token_amount_in <= self.math.bmul(self._get_record(token_in).unwrap().balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
@@ -835,7 +840,7 @@ mod pool {
 
             let total_supply = self.token.total_supply();
 
-            debug_println!("ready to cal");
+            // debug_println!("ready to cal");
             let pool_amount_out = self.base.calc_pool_out_given_single_in(in_record_balance,
                                                                           in_record_de_norm,
                                                                           total_supply,
@@ -843,7 +848,7 @@ mod pool {
                                                                           token_amount_in,
                                                                           self.swap_fee);
             assert!(pool_amount_out >= min_pool_amount_out, "ERR_LIMIT_OUT");
-            debug_println!("cal finish");
+            // debug_println!("cal finish");
 
             self._update_balance(token_in, self.math.badd(in_record_balance, token_amount_in));
             let (sender, this) = self._get_sender_and_this();
@@ -861,6 +866,7 @@ mod pool {
             return pool_amount_out;
         }
 
+        //用户设定需要收到的LP数量，合约自动计算需要的ERC20币并从用户账户收取
         #[ink(message)]
         pub fn join_swap_pool_amount_out(&mut self,
                                          token_in: AccountId,
@@ -868,26 +874,26 @@ mod pool {
                                          max_amount_in: u128) -> u128 {
 
             self._lock_();
-            debug_println!("enter join_swap_pool_amount_out");
+            // debug_println!("enter join_swap_pool_amount_out");
             self.require_finalize_bound(token_in);
             let in_record_balance = self._get_record(token_in).unwrap().balance;
             let in_record_de_norm = self._get_record(token_in).unwrap().de_norm;
 
             let total_supply = self.token.total_supply();
-            debug_println!("ready to cal");
+            // debug_println!("ready to cal");
             let token_amount_in = self.base.calc_single_in_given_pool_out(in_record_balance,
                                                                           in_record_de_norm,
                                                                           total_supply,
                                                                           self.total_weight,
                                                                           pool_amount_out,
                                                                           self.swap_fee);
-            debug_println!("cal  finish");
+            // debug_println!("cal  finish");
             assert!(token_amount_in != 0, "ERR_MATH_APPROX");
-            debug_println!("cal  finish1");
+            // debug_println!("cal  finish1");
             assert!(token_amount_in <= max_amount_in, "ERR_LIMIT_IN");
-            debug_println!("cal  finish2");
+            // debug_println!("cal  finish2");
             assert!(token_amount_in <= self.math.bmul(in_record_balance, MAX_IN_RATIO), "ERR_MAX_IN_RATIO");
-            debug_println!("cal  finish3");
+            // debug_println!("cal  finish3");
             self._update_balance(token_in, self.math.badd(in_record_balance, token_amount_in));
             let (sender, this) = self._get_sender_and_this();
 
@@ -905,6 +911,7 @@ mod pool {
             return token_amount_in;
         }
 
+        //用户打入一定数量的LP，合约把池子中的某种ERC20打给用户
         #[ink(message)]
         pub fn exit_swap_pool_amount_in(&mut self,
                                         token_out: AccountId,
@@ -949,6 +956,7 @@ mod pool {
             return token_amount_out;
         }
 
+        //用户设定需要收到的某ERC20数量，合约自动收取用户的LP
         #[ink(message)]
         pub fn exit_swap_extern_amount_out(&mut self,
                                            token_out: AccountId,

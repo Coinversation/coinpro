@@ -1,7 +1,8 @@
 # Ignore build artifacts from the local tests sub-crate.
-target
+target/
+debug/
 # Ignore artifacts files
-artifacts
+artifacts/
 
 
 # Ignore backup files creates by cargo fmt.
@@ -9,7 +10,10 @@ artifacts
 
 # Remove Cargo.lock when creating an executable, leave it for libraries
 # More information here http://doc.crates.io/guide.html#cargotoml-vs-cargolock
-#Cargo.lock
+Cargo.lock
+
+# MSVC Windows builds of rustc generate these, which store debugging information
+*.pdb
 
 # Dependency directory
 node_modules
@@ -20,4 +24,5 @@ node_modules
 
 .idea
 
-.gitconfig
+*.log
+package-lock.json

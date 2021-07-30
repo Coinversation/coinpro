@@ -78,18 +78,18 @@ mod exchangeproxy {
             let to: PAT = FromAccountId::from_account_id(token_out);
             let mut ti_contract = Lazy::new(ti);
             let mut to_contract = Lazy::new(to);
-            let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
-                                               token_in, token_out, total_amount_in,swaps.len());
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!("token_in is {:?}, token_out is {:?}, total_amount_in is {:?},swaps_len is {:?}",
+            //                                    token_in, token_out, total_amount_in,swaps.len());
+            // debug_println!("{}",&message);
             let mut total_amount_out: u128 = 0;
-            let message = ink_prelude::format!("1 begin balance_of this is {:?},total_amount_in is {:?}, exchange_account is {:?}",
-                                               ti_contract.balance_of(exchange_account),total_amount_in, exchange_account);
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!("1 begin balance_of this is {:?},total_amount_in is {:?}, exchange_account is {:?}",
+            //                                    ti_contract.balance_of(exchange_account),total_amount_in, exchange_account);
+            // debug_println!("{}",&message);
             assert!(ti_contract.transfer_from(caller, exchange_account, total_amount_in).is_ok());
 
-            debug_println!("{}",&message);
+            // debug_println!("{}",&message);
             assert!(swaps.len() > 0, "swaps is empty");
-            ink_env::debug_println!("batch_swap_exact_in 1. =============");
+            // ink_env::debug_println!("batch_swap_exact_in 1. =============");
 
             for x in swaps {
                 let pool: PoolInterface = FromAccountId::from_account_id(x.pool);
@@ -97,7 +97,7 @@ mod exchangeproxy {
                     ti_contract.approve(x.pool, u128::MAX);
                 }
 
-                ink_env::debug_println!("swap_exact_amount_in begin. =============");
+                // ink_env::debug_println!("swap_exact_amount_in begin. =============");
 
                 let (token_amount_out,_) = pool.swap_exact_amount_in(
                     token_in,
@@ -107,34 +107,34 @@ mod exchangeproxy {
                     x.max_price,
                 );
                 total_amount_out = self.add(token_amount_out, total_amount_out);
-                let message = ink_prelude::format!("token_amount_out is {:?}, total_amount_out is {:?}",
-                                                   token_amount_out, total_amount_out);
-                debug_println!("{}",&message);
+                // let message = ink_prelude::format!("token_amount_out is {:?}, total_amount_out is {:?}",
+                //                                    token_amount_out, total_amount_out);
+                // debug_println!("{}",&message);
             }
             assert!(total_amount_out>=min_total_amount_out, "ERR_LIMIT_OUT");
             let to_balance:Balance = to_contract.balance_of(exchange_account);
-            let message = ink_prelude::format!("to_contract.balance_of is {:?}, total_amount_out is {:?}",
-                                               to_contract.balance_of(exchange_account), total_amount_out );
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!("to_contract.balance_of is {:?}, total_amount_out is {:?}",
+            //                                    to_contract.balance_of(exchange_account), total_amount_out );
+            // debug_println!("{}",&message);
             if to_balance > 0 {
-                debug_println!("………………………… balance over 0 begin……………………………………");
+                // debug_println!("………………………… balance over 0 begin……………………………………");
                 self._trans_(token_out,caller,to_balance);
-                debug_println!("……………………………balance over 0 end …………………………………………");
+                // debug_println!("……………………………balance over 0 end …………………………………………");
             }
-            let message = ink_prelude::format!("to_contract.balance_of is {:?}, to.balance_caller IS {:?}",
-                                               to_contract.balance_of(exchange_account),  to_contract.balance_of(caller));
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!("to_contract.balance_of is {:?}, to.balance_caller IS {:?}",
+            //                                    to_contract.balance_of(exchange_account),  to_contract.balance_of(caller));
+            // debug_println!("{}",&message);
             let ti_balance:Balance = ti_contract.balance_of(exchange_account);
-            let message = ink_prelude::format!("ti_contract.balance_of before is {:?}", ti_balance);
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!("ti_contract.balance_of before is {:?}", ti_balance);
+            // debug_println!("{}",&message);
             if ti_balance > 0 {
-               let message = ink_prelude::format!("ti.balance_of caller before is {:?},", ti_contract.balance_of(caller));
-               debug_println!("{}",&message);
+            //    let message = ink_prelude::format!("ti.balance_of caller before is {:?},", ti_contract.balance_of(caller));
+            //    debug_println!("{}",&message);
                 self._trans_(token_in,caller,ti_balance);
-               let message = ink_prelude::format!("ti.balance_of caller after is {:?},", ti_contract.balance_of(caller));
-               debug_println!("{}",&message);
+            //    let message = ink_prelude::format!("ti.balance_of caller after is {:?},", ti_contract.balance_of(caller));
+            //    debug_println!("{}",&message);
            }
-            debug_println!("FINISH ...............");
+            // debug_println!("FINISH ...............");
 
             self._unlocks_();
             total_amount_out
@@ -363,9 +363,9 @@ mod exchangeproxy {
         }
 
         pub fn _trans_(&self, token: AccountId, to: AccountId, value:Balance ) {
-            let message = ink_prelude::format!("1^^^^^^_trans_  value is {:?}, to is {:?}",
-                                               value, to);
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!("1^^^^^^_trans_  value is {:?}, to is {:?}",
+            //                                    value, to);
+            // debug_println!("{}",&message);
             let token: PAT = FromAccountId::from_account_id(token);
             let mut token_contract = Lazy::new(token);
             // if token_contract.allowance(from, to) < value {
@@ -374,7 +374,7 @@ mod exchangeproxy {
 
             let fer = token_contract.transfer(to, value).is_ok();
             assert!(fer);
-            debug_println!("1^^^^^^  _trans_ finish ^^^^^^^^^^^^^^^");
+            // debug_println!("1^^^^^^  _trans_ finish ^^^^^^^^^^^^^^^");
         }
 
         //............................................

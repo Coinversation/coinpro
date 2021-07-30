@@ -259,11 +259,11 @@ mod pat {
         fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> IResult<()> {
             let caller = self.env().caller();
             let allowance = self.allowance(from, caller);
-            let message = ink_prelude::format!(">>>>>>>>: transfer_from  from is {:?} , allowance is {:?}, value is {:?}",
-                                               from, allowance, value);
-            debug_println!("{}",&message);
+            // let message = ink_prelude::format!(">>>>>>>>: transfer_from  from is {:?} , allowance is {:?}, value is {:?}",
+            //                                    from, allowance, value);
+            // debug_println!("{}",&message);
             if allowance < value {
-                debug_println!("InsufficientBalance");
+                // debug_println!("InsufficientBalance");
                 return Err(IError::InsufficientAllowance);
             }
             self.transfer_from_to(from, to, value)?;
